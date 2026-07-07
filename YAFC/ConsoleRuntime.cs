@@ -2,6 +2,7 @@
 using System.IO;
 using Raylib_cs;
 using MoonSharp.Interpreter;
+using System.Numerics;
 
 public class ConsoleRuntime
 {
@@ -15,7 +16,9 @@ public class ConsoleRuntime
 
     public void Run(string luaScriptPath, string spriteSheetPath)
     {
-        Raylib.InitWindow(800, 600, "Fantasy Console Runtime (Raylib-cs)");
+        Raylib.InitWindow(1280, 800, "Yet Another Fantasy Console: " + luaScriptPath);
+        RenderTexture2D render = Raylib.LoadRenderTexture(256, 192);
+        Raylib.SetTextureFilter(render.Texture, TextureFilter.Point);
         Raylib.SetTargetFPS(60);
 
         _vram.LoadSpriteSheet(spriteSheetPath);
@@ -55,8 +58,28 @@ public class ConsoleRuntime
         {
             _luaUpdate?.Call();
 
+            Raylib.BeginTextureMode(render);
+                _luaDraw?.Call();
+            Raylib.EndTextureMode();
+
             Raylib.BeginDrawing();
-            _luaDraw?.Call();
+                Raylib.ClearBackground(Color.Black);
+
+                float scale = MathF.Min((float)Raylib.GetScreenWidth() / render.Texture.Width, (float)Raylib.GetScreenHeight() / render.Texture.Height);
+                
+                // Integer scale - not used
+                //scale = MathF.Max(1.0f, MathF.Floor(scale));
+
+                float renderWidth = render.Texture.Width * scale;
+                float renderHeight = render.Texture.Height * scale;
+
+                float renderX = (Raylib.GetScreenWidth() - renderWidth) / 2.0f;
+                float renderY = (Raylib.GetScreenHeight() - renderHeight) / 2.0f;
+
+                Rectangle sourceRec = new(0, 0, render.Texture.Width, -render.Texture.Height);
+                Rectangle destRec = new Rectangle(renderX, renderY, renderWidth, renderHeight);
+
+            Raylib.DrawTexturePro(render.Texture, sourceRec, destRec, new Vector2(0, 0), 0.0f, Color.White);
             Raylib.EndDrawing();
         }
 
