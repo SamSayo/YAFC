@@ -1,0 +1,51 @@
+﻿using Raylib_cs;
+using System.Numerics;
+
+public class VramResourceManager
+{
+    private Texture2D _spriteSheet;
+    private readonly int _tileSize;
+
+    public VramResourceManager(int tileSize = 8)
+    {
+        _tileSize = tileSize;
+    }
+
+    // Загрузка спрайт-листа (аргументом может быть путь из UI или консоли)
+    public void LoadSpriteSheet(string filePath)
+    {
+        if (_spriteSheet.Id != 0)
+        {
+            Raylib.UnloadTexture(_spriteSheet);
+        }
+        _spriteSheet = Raylib.LoadTexture(filePath);
+    }
+
+    // Метод отрисовки, который будет вызываться из Lua
+    public void DrawSprite(int spriteId, float x, float y, float scale = 1.0f, bool flipX = false, bool flipY = false)
+    {
+        if (_spriteSheet.Id == 0) return;
+
+        // Находим строку и колонку спрайта в атласе
+        int spritesPerRow = _spriteSheet.Width / _tileSize;
+        int row = spriteId / spritesPerRow;
+        int col = spriteId % spritesPerRow;
+
+        // Источник (откуда вырезаем в текстуре)
+        Rectangle srcRect = new Rectangle(col * _tileSize, row * _tileSize, _tileSize, _tileSize);
+        if (flipX) srcRect.Width *= -1;
+        if (flipY) srcRect.Height *= -1;
+
+        // Назначение (куда рисуем на экране)
+        Rectangle destRect = new Rectangle(x, y, _tileSize * scale, _tileSize * scale);
+        Vector2 origin = Vector2.Zero;
+
+        // Прямой вызов GPU рендеринга через Raylib-cs
+        Raylib.DrawTexturePro(_spriteSheet, srcRect, destRect, origin, 0.0f, Color.White);
+    }
+
+    public void Unload()
+    {
+        if (_spriteSheet.Id != 0) Raylib.UnloadTexture(_spriteSheet);
+    }
+}
