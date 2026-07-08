@@ -16,7 +16,8 @@ public class ConsoleRuntime
 
     public void Run(string luaScriptPath, string spriteSheetPath)
     {
-        Raylib.InitWindow(1280, 800, "Yet Another Fantasy Console: " + luaScriptPath);
+        Raylib.SetConfigFlags(ConfigFlags.ResizableWindow);
+        Raylib.InitWindow(800, 600, "Yet Another Fantasy Console: " + luaScriptPath);
         RenderTexture2D render = Raylib.LoadRenderTexture(256, 192);
         Raylib.SetTextureFilter(render.Texture, TextureFilter.Point);
         Raylib.SetTargetFPS(60);
@@ -56,6 +57,11 @@ public class ConsoleRuntime
 
         while (!Raylib.WindowShouldClose())
         {
+            if (Raylib.IsKeyPressed(KeyboardKey.F))
+            {
+                Raylib.ToggleFullscreen();
+            }
+
             _luaUpdate?.Call();
 
             Raylib.BeginTextureMode(render);
