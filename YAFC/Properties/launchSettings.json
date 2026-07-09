@@ -1,8 +1,7 @@
 {
   "profiles": {
     "YAFC": {
-      "commandName": "Project",
-      "commandLineArgs": "\"D:\\Downloads\\Repos\\YAFC\\YAFC\\TestCard.lua\" \"D:\\Downloads\\sprite1.png\""
+      "commandName": "Project"
     }
   }
 }

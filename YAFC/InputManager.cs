@@ -1,8 +1,10 @@
 ﻿using Raylib_cs;
 
-public class InputManager
+namespace YAFC
 {
-    private readonly Dictionary<int, KeyboardKey> _buttonMap = new()
+    public class InputManager
+    {
+        private readonly Dictionary<int, KeyboardKey> _buttonMap = new()
     {
         { 0, KeyboardKey.Left },
         { 1, KeyboardKey.Right },
@@ -12,21 +14,22 @@ public class InputManager
         { 5, KeyboardKey.X }
     };
 
-    public bool IsBtnDown(int buttonId)
-    {
-        if (_buttonMap.TryGetValue(buttonId, out var key))
+        public bool IsBtnDown(int buttonId)
         {
-            return Raylib.IsKeyDown(key);
+            if (_buttonMap.TryGetValue(buttonId, out var key))
+            {
+                return Raylib.IsKeyDown(key);
+            }
+            return false;
         }
-        return false;
-    }
 
-    public bool IsBtnPressed(int buttonId)
-    {
-        if (_buttonMap.TryGetValue(buttonId, out var key))
+        public bool IsBtnPressed(int buttonId)
         {
-            return Raylib.IsKeyPressed(key);
+            if (_buttonMap.TryGetValue(buttonId, out var key))
+            {
+                return Raylib.IsKeyPressed(key);
+            }
+            return false;
         }
-        return false;
     }
 }
