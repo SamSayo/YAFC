@@ -12,7 +12,7 @@ namespace YAFC
             ConsoleRuntime console = new();
 
             if (args.Length == 0)
-                console.Run("D:\\Downloads\\Repos\\YAFC\\YAFC\\TestCard.lua", "D:\\Downloads\\sprite1.png");
+                console.Menu();
             else
                 console.Run(args[0], args[1]);
         }

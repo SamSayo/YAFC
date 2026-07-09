@@ -1,7 +1,5 @@
-﻿using System;
-using System.IO;
+﻿using MoonSharp.Interpreter;
 using Raylib_cs;
-using MoonSharp.Interpreter;
 using System.Numerics;
 
 public class ConsoleRuntime
@@ -13,6 +11,28 @@ public class ConsoleRuntime
     private Closure _luaInit;
     private Closure _luaUpdate;
     private Closure _luaDraw;
+
+    public void Menu(string romLibrary = @".\roms")
+    {
+        Raylib.SetConfigFlags(ConfigFlags.ResizableWindow);
+        Raylib.InitWindow(800, 600, "Yet Another Fantasy Console");
+        Raylib.SetTargetFPS(60);
+
+        bool showMessageBox = false;
+
+        while (!Raylib.WindowShouldClose())
+        {
+            Raylib.BeginDrawing();
+            
+            Raylib.ClearBackground(Color.Gray);
+
+            //Raylib.
+            
+            Raylib.EndDrawing();
+        }
+
+        Raylib.CloseWindow();
+    }
 
     public void Run(string luaScriptPath, string spriteSheetPath)
     {

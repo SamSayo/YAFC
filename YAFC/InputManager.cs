@@ -1,5 +1,4 @@
 ﻿using Raylib_cs;
-using System.Collections.Generic;
 
 public class InputManager
 {
