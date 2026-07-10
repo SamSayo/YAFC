@@ -8,7 +8,7 @@ namespace YAFC
         private Texture2D _spriteSheet;
         private readonly int _tileSize;
 
-        private Color[] gamePalette = new Color[]
+        private readonly Color[] gamePalette = new Color[]
         {
             new Color(0, 0, 0, 255),
             new Color(126, 126, 126, 255),
