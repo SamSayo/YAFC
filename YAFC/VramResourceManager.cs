@@ -13,13 +13,13 @@ namespace YAFC
             _tileSize = tileSize;
         }
 
-        public void LoadSpriteSheet(string filePath)
+        public void LoadSpriteSheet(Image spriteSheet)
         {
             if (_spriteSheet.Id != 0)
             {
                 Raylib.UnloadTexture(_spriteSheet);
             }
-            _spriteSheet = Raylib.LoadTexture(filePath);
+            _spriteSheet = Raylib.LoadTextureFromImage(spriteSheet);
         }
 
         public void DrawSprite(int spriteId, float x, float y, float scale = 1.0f, bool flipX = false, bool flipY = false)

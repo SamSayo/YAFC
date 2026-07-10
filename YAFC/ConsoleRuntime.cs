@@ -1,5 +1,6 @@
 ﻿using MoonSharp.Interpreter;
 using Raylib_cs;
+using NativeFileDialogSharp;
 using System.Numerics;
 
 namespace YAFC
@@ -19,32 +20,60 @@ namespace YAFC
         {
             Raylib.SetConfigFlags(ConfigFlags.ResizableWindow);
             Raylib.InitWindow(800, 600, "Yet Another Fantasy Console");
-            Raylib.SetTargetFPS(60);
+            Raylib.InitAudioDevice();
+            Raylib.SetTargetFPS(30);
+
+            //Sound errorSound = Raylib.LoadSound("resources\\error.ogg");
+            string cartPath = string.Empty;
+            bool canBreak = false;
 
             while (!Raylib.WindowShouldClose())
-            {
+            {                
+                if (Raylib.IsMouseButtonPressed(MouseButton.Left))
+                {
+                    DialogResult result = Dialog.FileOpen("yafc", null);
+
+                    if (result.IsOk)
+                    {
+                        cartPath = result.Path;
+                        canBreak = true;
+                    }
+                    else if (result.IsError)
+                    { 
+                        Console.WriteLine($"Error: {result.ErrorMessage}"); 
+                    }
+                }
+
                 Raylib.BeginDrawing();
 
                 Raylib.ClearBackground(Color.Gray);
-                Raylib.DrawText("Launching the game: yafc.exe game.lua sprite.png", 10, 10, 25, Color.White);
-                Raylib.DrawText("Press esc", 15, 50, 50, Color.White);
-
+                Raylib.DrawText("Drag & Drop cartridge file into this window", 10, 10, 30, Color.RayWhite);
+                Raylib.DrawText("or click on this window with left click", 10, 40, 30, Color.White);
+                
                 Raylib.EndDrawing();
+
+                if (canBreak) break;
             }
 
+            Raylib.CloseAudioDevice();
             Raylib.CloseWindow();
+            if (canBreak)
+            {
+                CartridgeManager cartridge = new();
+                Run(cartridge.OpenCartridge(cartPath));
+            }
         }
 
-        public void Run(string luaScriptPath, string spriteSheetPath)
+        public void Run((string lua, Image spriteSheet) cartridge)
         {
             Raylib.SetConfigFlags(ConfigFlags.ResizableWindow);
-            Raylib.InitWindow(800, 600, "Yet Another Fantasy Console: " + luaScriptPath);
+            Raylib.InitWindow(800, 600, "Yet Another Fantasy Console");
             RenderTexture2D render = Raylib.LoadRenderTexture(256, 192);
             Raylib.SetTextureFilter(render.Texture, TextureFilter.Point);
             Raylib.SetTargetFPS(50);
             _audio.Init();
 
-            _vram.LoadSpriteSheet(spriteSheetPath);
+            _vram.LoadSpriteSheet(cartridge.spriteSheet);
 
             UserData.RegisterType<VirtualConsoleApi>();
             _luaState = new Script();
@@ -63,7 +92,7 @@ namespace YAFC
 
             try
             {
-                string scriptCode = File.ReadAllText(luaScriptPath);
+                string scriptCode = cartridge.lua;
                 _luaState.DoString(scriptCode);
 
                 _luaInit = _luaState.Globals.Get("init").Function;
