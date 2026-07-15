@@ -99,6 +99,11 @@ end
 - `game.lua` – Main game code
 - `sprites.png` – Sprite sheet (indexed PNG with 16-color palette)
 
+## Roadmap
+
+- [ ] Implement DPCM (NES-style compressed audio) support
+- [ ] Add support for multiple BIOS regions (2-3 regional variants) 
+
 ## 🛠️ Dependencies
 
 - **Raylib-cs** – Graphics and audio rendering
