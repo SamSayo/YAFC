@@ -1,0 +1,9 @@
+{
+  "$schema": "https://raw.githubusercontent.com/LuaLS/vscode-lua/master/setting/schema.json",
+  "Lua.workspace.library": [
+    "./.api"
+  ],
+  "Lua.diagnostics.globals": [
+    "spr", "cls", "print_text", "btn", "btnp", "sound"
+  ]
+}
