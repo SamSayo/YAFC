@@ -21,6 +21,11 @@ namespace YAFC
         {
             Raylib.SetConfigFlags(ConfigFlags.ResizableWindow);
             Raylib.InitWindow(800, 600, "Yet Another Fantasy Console");
+            
+            Shader noiseShader = Raylib.LoadShader(null, "resources\\tv.shdr");
+
+            int timeLoc = Raylib.GetShaderLocation(noiseShader, "uTime");
+
             Raylib.InitAudioDevice();
             Raylib.SetTargetFPS(30);
 
@@ -29,7 +34,14 @@ namespace YAFC
             bool canBreak = false;
 
             while (!Raylib.WindowShouldClose())
-            {                
+            {
+                float time = (float)Raylib.GetTime();
+
+                unsafe
+                {
+                    Raylib.SetShaderValue(noiseShader, timeLoc, &time, ShaderUniformDataType.Float);
+                }
+
                 if (Raylib.IsMouseButtonPressed(MouseButton.Left))
                 {
                     DialogResult result = Dialog.FileOpen("yafc", null);
@@ -47,15 +59,20 @@ namespace YAFC
 
                 Raylib.BeginDrawing();
 
-                Raylib.ClearBackground(Color.Gray);
-                Raylib.DrawText("Drag & Drop cartridge file into this window", 10, 10, 30, Color.RayWhite);
-                Raylib.DrawText("or click on this window with left click", 10, 40, 30, Color.White);
+                Raylib.BeginShaderMode(noiseShader);
+
+                Raylib.DrawRectangle(0, 0, Raylib.GetScreenWidth(), Raylib.GetScreenHeight(), Color.White);
+
+                Raylib.EndShaderMode();
+
+                Raylib.DrawText("Click on this window with left click to choose cartridge", 10, 10, 30, Color.RayWhite);
                 
                 Raylib.EndDrawing();
 
                 if (canBreak) break;
             }
 
+            Raylib.UnloadShader(noiseShader);
             Raylib.CloseAudioDevice();
             Raylib.CloseWindow();
             if (canBreak)

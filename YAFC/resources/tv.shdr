@@ -1,0 +1,18 @@
+#version 330
+
+in vec2 fragTexCoord;
+in vec4 fragColor;
+
+out vec4 finalColor;
+
+uniform float uTime;
+
+float random(vec2 uv) {
+    return fract(sin(dot(uv.xy, vec2(12.9898, 78.233))) * 43758.5453123);
+}
+
+void main() {
+    float grain = random(fragTexCoord + sin(uTime));
+    
+    finalColor = vec4(vec3(grain), 1.0) * fragColor;
+}
