@@ -2,6 +2,7 @@
 using Raylib_cs;
 using NativeFileDialogSharp;
 using System.Numerics;
+using System.Diagnostics;
 
 namespace YAFC
 {
@@ -107,8 +108,20 @@ namespace YAFC
 
             _luaInit?.Call();
 
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            double lastTime = 0;
+
             while (!Raylib.WindowShouldClose())
             {
+                double currentTime = stopwatch.Elapsed.TotalSeconds;
+
+                float deltaTime = (float)(currentTime - lastTime);
+                lastTime = currentTime;
+
+                if (deltaTime > 0.1f) deltaTime = 0.1f;
+
+                _luaState.Globals["deltaTime"] = deltaTime;
+
                 if (Raylib.IsKeyPressed(KeyboardKey.F))
                 {
                     Raylib.ToggleFullscreen();
@@ -126,8 +139,8 @@ namespace YAFC
 
                 float scale = MathF.Min((float)Raylib.GetScreenWidth() / render.Texture.Width, (float)Raylib.GetScreenHeight() / render.Texture.Height);
 
-                // Integer scale - not used
-                //scale = MathF.Max(1.0f, MathF.Floor(scale));
+                // Integer scale
+                // scale = MathF.Max(1.0f, MathF.Floor(scale));
 
                 float renderWidth = render.Texture.Width * scale;
                 float renderHeight = render.Texture.Height * scale;
