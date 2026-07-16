@@ -44,7 +44,7 @@ namespace YAFC
 
                 if (Raylib.IsMouseButtonPressed(MouseButton.Left))
                 {
-                    DialogResult result = Dialog.FileOpen("yafc", null);
+                    DialogResult result = Dialog.FileOpen("yafc,YAFC", null);
 
                     if (result.IsOk)
                     {
