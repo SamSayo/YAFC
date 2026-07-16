@@ -101,6 +101,7 @@ end
 
 ## Roadmap
 
+- [ ] Start screen
 - [ ] Implement DPCM (NES-style compressed audio) support
 - [ ] Add support for multiple BIOS regions (2-3 regional variants) 
 
