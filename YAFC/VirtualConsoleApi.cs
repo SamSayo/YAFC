@@ -9,12 +9,14 @@ namespace YAFC
         private readonly VramResourceManager _vram;
         private readonly InputManager _input;
         private readonly AudioSynthesizer _audio;
+        private readonly PhysEngine _physEngine;
 
-        public VirtualConsoleApi(VramResourceManager vram, InputManager input, AudioSynthesizer audio)
+        public VirtualConsoleApi(VramResourceManager vram, InputManager input, AudioSynthesizer audio, PhysEngine physEngine)
         {
             _vram = vram;
             _input = input;
             _audio = audio;
+            _physEngine = physEngine;
         }
 
         // --- Graphics ---
@@ -62,5 +64,8 @@ namespace YAFC
             }
         }
 
+
+        // --- Physics ---
+        public MoveResult move_and_slide(float x, float y, float w, float h, float vx, float vy) => _physEngine.MoveAndSlide(new Rect(x, y, w, h), vx, vy);
     }
 }
