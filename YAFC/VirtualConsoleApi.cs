@@ -67,5 +67,11 @@ namespace YAFC
 
         // --- Physics ---
         public MoveResult move_and_slide(float x, float y, float w, float h, float vx, float vy) => _physEngine.MoveAndSlide(new Rect(x, y, w, h), vx, vy);
+
+        public void set_tile_solid(int tileX, int tileY, bool solid)
+        => _vram.SetTileSolid(tileX, tileY, solid);
+
+        public bool get_tile_solid(int tileX, int tileY)
+            => _vram.IsTileSolid(tileX, tileY);
     }
 }

@@ -7,6 +7,7 @@ namespace YAFC
     {
         private Texture2D _spriteSheet;
         private readonly int _tileSize;
+        private Dictionary<(int, int), bool> _tileSolidity = new();
 
         private readonly Color[] gamePalette = new Color[]
         {
@@ -112,6 +113,16 @@ namespace YAFC
         public void Unload()
         {
             if (_spriteSheet.Id != 0) Raylib.UnloadTexture(_spriteSheet);
+        }
+
+        public void SetTileSolid(int tileX, int tileY, bool isSolid)
+        {
+            _tileSolidity[(tileX, tileY)] = isSolid;
+        }
+
+        public bool IsTileSolid(int tileX, int tileY)
+        {
+            return _tileSolidity.TryGetValue((tileX, tileY), out var solid) && solid;
         }
     }
 }

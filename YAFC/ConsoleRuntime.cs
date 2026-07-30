@@ -11,6 +11,7 @@ namespace YAFC
         private readonly VramResourceManager _vram = new(16);
         private readonly InputManager _input = new();
         private readonly AudioSynthesizer _audio = new();
+        private readonly PhysEngine _physEngine;
         private Script _luaState;
 
         private Closure _luaInit;
@@ -93,10 +94,11 @@ namespace YAFC
 
             _vram.LoadSpriteSheet(cartridge.spriteSheet);
 
+
             UserData.RegisterType<VirtualConsoleApi>();
             _luaState = new Script();
 
-            var api = new VirtualConsoleApi(_vram, _input, _audio);
+            var api = new VirtualConsoleApi(_vram, _input, _audio, _physEngine);
             _luaState.Globals["api"] = api;
 
             _luaState.DoString(@"
