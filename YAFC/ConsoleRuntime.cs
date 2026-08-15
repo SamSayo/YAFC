@@ -21,7 +21,7 @@ namespace YAFC
         public void Menu()
         {
             Raylib.SetConfigFlags(ConfigFlags.ResizableWindow);
-            Raylib.InitWindow(800, 600, "Yet Another Fantasy Console");
+            Raylib.InitWindow(850, 600, "Yet Another Fantasy Console");
             
             Shader noiseShader = Raylib.LoadShader(null, "resources\\tv.shdr");
 
@@ -159,7 +159,7 @@ namespace YAFC
                 float scale = MathF.Min((float)Raylib.GetScreenWidth() / render.Texture.Width, (float)Raylib.GetScreenHeight() / render.Texture.Height);
 
                 // Integer scale
-                // scale = MathF.Max(1.0f, MathF.Floor(scale));
+                scale = MathF.Max(1.0f, MathF.Floor(scale));
 
                 float renderWidth = render.Texture.Width * scale;
                 float renderHeight = render.Texture.Height * scale;
