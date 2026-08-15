@@ -364,3 +364,5 @@ FodyWeavers.xsd
 /YAFC/TestCard.lua
 /YAFC/error.ogg
 /YAFC/Pong.lua
+*.lua
+*.zip
