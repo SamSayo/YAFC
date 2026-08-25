@@ -86,7 +86,7 @@ namespace YAFC
         public void Run((string lua, Image spriteSheet) cartridge)
         {
             Raylib.SetConfigFlags(ConfigFlags.ResizableWindow);
-            Raylib.InitWindow(800, 600, "Yet Another Fantasy Console");
+            Raylib.InitWindow(85    0, 600, "Yet Another Fantasy Console");
             RenderTexture2D render = Raylib.LoadRenderTexture(256, 192);
             Raylib.SetTextureFilter(render.Texture, TextureFilter.Point);
             Raylib.SetTargetFPS(50);
