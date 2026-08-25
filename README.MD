@@ -93,7 +93,7 @@ function draw()
 end
 ```
 
-## 📦 Cartridge Format
+## 📦 Gamecart Format
 
 `.yafc` files are ZIP archives containing:
 - `game.lua` – Main game code
@@ -104,6 +104,7 @@ end
 - [ ] Start screen
 - [ ] Implement DPCM (NES-style compressed audio) support
 - [ ] Add support for multiple BIOS regions (2-3 regional variants) 
+- [ ] Gamecart saving
 
 ## 🛠️ Dependencies
 
