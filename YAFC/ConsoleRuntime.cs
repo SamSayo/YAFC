@@ -1,8 +1,10 @@
-﻿using MoonSharp.Interpreter;
-using Raylib_cs;
+﻿using ImGuiNET;
+using MoonSharp.Interpreter;
 using NativeFileDialogSharp;
-using System.Numerics;
+using Raylib_cs;
+using rlImGui_cs;
 using System.Diagnostics;
+using System.Numerics;
 
 namespace YAFC
 {
@@ -22,7 +24,9 @@ namespace YAFC
         {
             Raylib.SetConfigFlags(ConfigFlags.ResizableWindow);
             Raylib.InitWindow(850, 600, "Yet Another Fantasy Console");
-            
+
+            rlImGui.Setup(true);
+
             Shader noiseShader = Raylib.LoadShader(null, "resources\\tv.shdr");
 
             int timeLoc = Raylib.GetShaderLocation(noiseShader, "uTime");
@@ -67,12 +71,13 @@ namespace YAFC
                 Raylib.EndShaderMode();
 
                 Raylib.DrawText("Click on this window with left click to choose cartridge", 10, 10, 30, Color.RayWhite);
-                
+
                 Raylib.EndDrawing();
 
                 if (canBreak) break;
             }
 
+            rlImGui.Shutdown();
             Raylib.UnloadShader(noiseShader);
             Raylib.CloseAudioDevice();
             Raylib.CloseWindow();
@@ -85,8 +90,11 @@ namespace YAFC
 
         public void Run((string lua, Image spriteSheet) cartridge)
         {
+            if (cartridge.lua == null)
+                Environment.Exit(0);
+
             Raylib.SetConfigFlags(ConfigFlags.ResizableWindow);
-            Raylib.InitWindow(85    0, 600, "Yet Another Fantasy Console");
+            Raylib.InitWindow(850, 600, "Yet Another Fantasy Console");
             RenderTexture2D render = Raylib.LoadRenderTexture(256, 192);
             Raylib.SetTextureFilter(render.Texture, TextureFilter.Point);
             Raylib.SetTargetFPS(50);

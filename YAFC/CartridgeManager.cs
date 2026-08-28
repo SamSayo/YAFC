@@ -10,6 +10,20 @@ namespace YAFC
 
         public (string luaCode, Image spriteSheet) OpenCartridge(string cartPath)
         {
+            //FileInfo fi = new FileInfo(cartPath);
+            //long cartSize = fi.Length;
+
+            //float maxCartSize = 2.5f;
+
+            //if (cartSize <= 0)
+            //{
+            //    return (null, default);
+            //}
+            //else if (cartSize > maxCartSize * 1024 * 1024)
+            //{
+            //    return (null, default);
+            //}
+
             using (ZipArchive cart = ZipFile.OpenRead(cartPath))
             {
                 foreach (ZipArchiveEntry file in cart.Entries)
