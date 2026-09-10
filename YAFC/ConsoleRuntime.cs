@@ -126,10 +126,11 @@ namespace YAFC
 
             _vram.LoadSpriteSheet(cartridge.spriteSheet);
 
-
+            _physEngine = new PhysEngine(_vram.IsTileSolid);
+            
             UserData.RegisterType<VirtualConsoleApi>();
             _luaState = new Script();
-
+            
             var api = new VirtualConsoleApi(_vram, _input, _audio, _physEngine);
             _luaState.Globals["api"] = api;
 
@@ -140,6 +141,9 @@ namespace YAFC
                 btn = function(id) return api.btn(id) end
                 btnp = function(id) return api.btnp(id) end
                 sound = function(ch, freq, vol, duty) api.sound(ch, freq, vol, duty or 0.5) end
+                move_and_slide = function(x, y, w, h, vx, vy) return api.move_and_slide(x, y, w, h, vx, vy) end
+                set_tile_solid = function(x, y, solid) return api.set_tile_solid(x, y, solid) end
+                get_tile_solid = function(x, y) return api.get_tile_solid(x, y) end
             ");
 
             try
