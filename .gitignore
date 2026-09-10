@@ -366,3 +366,4 @@ FodyWeavers.xsd
 /YAFC/Pong.lua
 *.lua
 *.zip
+*.ini
