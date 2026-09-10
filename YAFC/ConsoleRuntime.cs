@@ -38,6 +38,8 @@ namespace YAFC
             string cartPath = string.Empty;
             bool canBreak = false;
 
+            string errDesc = string.Empty;
+
             while (!Raylib.WindowShouldClose())
             {
                 float time = (float)Raylib.GetTime();
@@ -47,31 +49,53 @@ namespace YAFC
                     Raylib.SetShaderValue(noiseShader, timeLoc, &time, ShaderUniformDataType.Float);
                 }
 
-                if (Raylib.IsMouseButtonPressed(MouseButton.Left))
-                {
-                    DialogResult result = Dialog.FileOpen("yafc,YAFC", null);
-
-                    if (result.IsOk)
-                    {
-                        cartPath = result.Path;
-                        canBreak = true;
-                    }
-                    else if (result.IsError)
-                    { 
-                        Console.WriteLine($"Error: {result.ErrorMessage}"); 
-                    }
-                }
-
                 Raylib.BeginDrawing();
-
                 Raylib.BeginShaderMode(noiseShader);
 
                 Raylib.DrawRectangle(0, 0, Raylib.GetScreenWidth(), Raylib.GetScreenHeight(), Color.White);
 
                 Raylib.EndShaderMode();
+                
+                rlImGui.Begin();
+                if (!canBreak)
+                {
+                    ImGui.Begin("Menu");
+                    ImGui.Text("Error:" + errDesc);
+                    if (ImGui.Button("Load GameCart"))
+                    {
+                        DialogResult result = Dialog.FileOpen("yafc,YAFC", null);
+
+                        if (result.IsOk)
+                        {
+                            cartPath = result.Path;
+
+                            FileInfo cartInfo = new FileInfo(cartPath);
+                            if (cartInfo.Length > 2.5 * 1024 * 1024)
+                            {
+                                errDesc = "GameCart is too chonky!";
+                                canBreak = false;
+                            }
+                            else if (cartInfo.Length <= 0)
+                            {
+                                errDesc = "GameCart is broken or is empty!";
+                                canBreak = false;
+                            }
+                            else
+                            {
+                                canBreak = true;
+                            }
+                        }
+                        else if (result.IsError)
+                        {
+                            Console.WriteLine($"Error: {result.ErrorMessage}");
+                        }
+                    }
+                    ImGui.End();
+                }
+                rlImGui.End();
 
                 Raylib.DrawText("Click on this window with left click to choose cartridge", 10, 10, 30, Color.RayWhite);
-
+                
                 Raylib.EndDrawing();
 
                 if (canBreak) break;
@@ -97,7 +121,7 @@ namespace YAFC
             Raylib.InitWindow(850, 600, "Yet Another Fantasy Console");
             RenderTexture2D render = Raylib.LoadRenderTexture(256, 192);
             Raylib.SetTextureFilter(render.Texture, TextureFilter.Point);
-            Raylib.SetTargetFPS(50);
+            Raylib.SetTargetFPS(60);
             _audio.Init();
 
             _vram.LoadSpriteSheet(cartridge.spriteSheet);
