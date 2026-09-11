@@ -22,12 +22,12 @@ namespace YAFC
         // --- Graphics ---
         public void spr(int id, float x, float y, float scale = 1.0f, bool flipX = false, bool flipY = false)
             => _vram.DrawSprite(id, x, y, scale, flipX, flipY);
-
         public void cls(byte r, byte g, byte b)
             => Raylib.ClearBackground(new Color(r, g, b, (byte)255));
-
         public void print(string text, float x, float y, int fontSize, byte r, byte g, byte b)
             => Raylib.DrawText(text, (int)x, (int)y, fontSize, new Color(r, g, b, (byte)255));
+        public void tile(int id, int tileX, int tileY)
+            => _vram.DrawTile(id, tileX, tileY);
 
         // --- Input ---
         public bool btn(int id) => _input.IsBtnDown(id);

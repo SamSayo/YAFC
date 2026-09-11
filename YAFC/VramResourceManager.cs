@@ -66,6 +66,14 @@ namespace YAFC
             Raylib.DrawTexturePro(_spriteSheet, srcRect, destRect, origin, 0.0f, Color.White);
         }
 
+        public void DrawTile(int tileId, int tileX, int tileY)
+        {
+            float x = tileX * _tileSize;
+            float y = tileY * _tileSize;
+
+            DrawSprite(tileId, x, y);
+        }
+
         private static Color FindClosestColor(Color src, Color[] palette)
         {
             Color closest = palette[0];

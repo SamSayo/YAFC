@@ -20,6 +20,11 @@ namespace YAFC
         private Closure _luaUpdate;
         private Closure _luaDraw;
 
+        public ConsoleRuntime()
+        {
+            _physEngine = new PhysEngine(_vram.IsTileSolid);
+        }
+
         public void Menu()
         {
             Raylib.SetConfigFlags(ConfigFlags.ResizableWindow);
@@ -125,8 +130,6 @@ namespace YAFC
             _audio.Init();
 
             _vram.LoadSpriteSheet(cartridge.spriteSheet);
-
-            _physEngine = new PhysEngine(_vram.IsTileSolid);
             
             UserData.RegisterType<VirtualConsoleApi>();
             _luaState = new Script();
@@ -137,6 +140,7 @@ namespace YAFC
             _luaState.DoString(@"
                 spr = function(id, x, y, s, fx, fy) api.spr(id, x, y, s or 1, fx or false, fy or false) end
                 cls = function(r, g, b) api.cls(r, g, b) end
+                tile = function(id, x, y) api.tile(id, x, y) end
                 print_text = function(t, x, y, size, r, g, b) api.print(t, x, y, size, r, g, b) end
                 btn = function(id) return api.btn(id) end
                 btnp = function(id) return api.btnp(id) end
