@@ -2,7 +2,7 @@
 using Raylib_cs;
 using System.Xml.Serialization;
 
-namespace YAFC
+namespace YAFC.Audio
 {
     public sealed class TrackerPlayer : IDisposable
     {

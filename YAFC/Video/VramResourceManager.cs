@@ -1,7 +1,7 @@
 ﻿using Raylib_cs;
 using System.Numerics;
 
-namespace YAFC
+namespace YAFC.Video
 {
     public class VramResourceManager
     {

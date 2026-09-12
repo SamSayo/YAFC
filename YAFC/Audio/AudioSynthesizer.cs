@@ -1,7 +1,7 @@
 ﻿using Raylib_cs;
 using System;
 
-namespace YAFC
+namespace YAFC.Audio
 {
     public class AudioSynthesizer
     {

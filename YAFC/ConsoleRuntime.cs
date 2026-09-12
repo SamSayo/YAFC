@@ -5,6 +5,10 @@ using Raylib_cs;
 using rlImGui_cs;
 using System.Diagnostics;
 using System.Numerics;
+using YAFC.Audio;
+using YAFC.GameCarts;
+using YAFC.Physics;
+using YAFC.Video;
 
 namespace YAFC
 {
@@ -23,6 +27,7 @@ namespace YAFC
         public ConsoleRuntime()
         {
             _physEngine = new PhysEngine(_vram.IsTileSolid);
+            UserData.RegisterType<MoveResult>();
         }
 
         public void Menu()

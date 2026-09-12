@@ -1,7 +1,7 @@
 ﻿using Raylib_cs;
 using System.IO.Compression;
 
-namespace YAFC
+namespace YAFC.GameCarts
 {
     public class CartridgeManager
     {

@@ -2,7 +2,7 @@
 using System.IO;
 using System.IO.Compression;
 
-namespace YAFC
+namespace YAFC.Audio
 {
     public sealed class AudioManager : IDisposable
     {

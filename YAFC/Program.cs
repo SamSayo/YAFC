@@ -1,4 +1,6 @@
-﻿namespace YAFC
+﻿using YAFC.GameCarts;
+
+namespace YAFC
 {
     class Program
     {

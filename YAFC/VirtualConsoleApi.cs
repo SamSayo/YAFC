@@ -1,5 +1,8 @@
 ﻿using MoonSharp.Interpreter;
 using Raylib_cs;
+using YAFC.Audio;
+using YAFC.Physics;
+using YAFC.Video;
 
 namespace YAFC
 {

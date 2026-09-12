@@ -1,4 +1,4 @@
-﻿namespace YAFC
+﻿namespace YAFC.Physics
 {
     public class PhysEngine
     {
