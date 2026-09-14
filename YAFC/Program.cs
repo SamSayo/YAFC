@@ -4,6 +4,7 @@ namespace YAFC
 {
     class Program
     {
+        [STAThread]
         static void Main(string[] args)
         {
             ConsoleRuntime console = new();

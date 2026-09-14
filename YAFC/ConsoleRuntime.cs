@@ -122,9 +122,9 @@ namespace YAFC
             }
         }
 
-        public void Run((string lua, Image spriteSheet) cartridge)
+        public void Run(LoadedGameCart cartridge)
         {
-            if (cartridge.lua == null)
+            if (cartridge.luaCode == null)
                 Environment.Exit(0);
 
             Raylib.SetConfigFlags(ConfigFlags.ResizableWindow);
@@ -157,7 +157,7 @@ namespace YAFC
 
             try
             {
-                string scriptCode = cartridge.lua;
+                string scriptCode = cartridge.luaCode;
                 _luaState.DoString(scriptCode);
 
                 _luaInit = _luaState.Globals.Get("init").Function;
