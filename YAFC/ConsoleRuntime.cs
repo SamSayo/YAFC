@@ -135,9 +135,9 @@ namespace YAFC
             _audio.Init();
 
             _vram.LoadSpriteSheet(cartridge.spriteSheet);
-            
+
             UserData.RegisterType<VirtualConsoleApi>();
-            _luaState = new Script();
+            _luaState = new Script(CoreModules.Preset_SoftSandbox);
             
             var api = new VirtualConsoleApi(_vram, _input, _audio, _physEngine);
             _luaState.Globals["api"] = api;
