@@ -11,10 +11,10 @@ namespace YAFC
     {
         private readonly VramResourceManager _vram;
         private readonly InputManager _input;
-        private readonly AudioSynthesizer _audio;
+        private readonly AudioManager _audio;
         private readonly PhysEngine _physEngine;
 
-        public VirtualConsoleApi(VramResourceManager vram, InputManager input, AudioSynthesizer audio, PhysEngine physEngine)
+        public VirtualConsoleApi(VramResourceManager vram, InputManager input, AudioManager audio, PhysEngine physEngine)
         {
             _vram = vram;
             _input = input;
@@ -43,30 +43,29 @@ namespace YAFC
 
             if (ch == 1)
             {
-                _audio.Pulse1.Frequency = freq;
-                _audio.Pulse1.Volume = vol;
-                _audio.Pulse1.Duty = duty;
+                _audio.Synth.Pulse1.Frequency = freq;
+                _audio.Synth.Pulse1.Volume = vol;
+                _audio.Synth.Pulse1.Duty = duty;
             }
             else if (ch == 2)
             {
-                _audio.Pulse2.Frequency = freq;
-                _audio.Pulse2.Volume = vol;
-                _audio.Pulse2.Duty = duty;
+                _audio.Synth.Pulse2.Frequency = freq;
+                _audio.Synth.Pulse2.Volume = vol;
+                _audio.Synth.Pulse2.Duty = duty;
             }
             else if (ch == 3)
             {
-                _audio.Triangle.Frequency = freq;
-                _audio.Triangle.Volume = vol;
-                _audio.Triangle.Duty = duty;
+                _audio.Synth.Triangle.Frequency = freq;
+                _audio.Synth.Triangle.Volume = vol;
+                _audio.Synth.Triangle.Duty = duty;
             }
             else if (ch == 4)
             {
-                _audio.Noise.Frequency = freq;
-                _audio.Noise.Volume = vol;
-                _audio.Noise.Duty = duty;
+                _audio.Synth.Noise.Frequency = freq;
+                _audio.Synth.Noise.Volume = vol;
+                _audio.Synth.Noise.Duty = duty;
             }
         }
-
 
         // --- Physics ---
         public MoveResult move_and_slide(float x, float y, float w, float h, float vx, float vy) => _physEngine.MoveAndSlide(new Rect(x, y, w, h), vx, vy);

@@ -16,7 +16,7 @@ namespace YAFC
     {
         private readonly VramResourceManager _vram = new(16);
         private readonly InputManager _input = new();
-        private readonly AudioSynthesizer _audio = new();
+        private readonly AudioManager _audio = new();
         private readonly PhysEngine _physEngine;
         private Script _luaState;
 
@@ -132,7 +132,7 @@ namespace YAFC
             RenderTexture2D render = Raylib.LoadRenderTexture(256, 192);
             Raylib.SetTextureFilter(render.Texture, TextureFilter.Point);
             Raylib.SetTargetFPS(60);
-            _audio.Init();
+            _audio.Initialize();
 
             _vram.LoadSpriteSheet(cartridge.spriteSheet);
 
@@ -192,7 +192,7 @@ namespace YAFC
                 }
 
                 _luaUpdate?.Call();
-                _audio.UpdateStream();
+                _audio.Update();
 
                 Raylib.BeginTextureMode(render);
                 _luaDraw?.Call();
@@ -219,7 +219,7 @@ namespace YAFC
                 Raylib.EndDrawing();
             }
 
-            _audio.Shutdown();
+            _audio.Dispose();
             _vram.Unload();
             Raylib.CloseWindow();
         }

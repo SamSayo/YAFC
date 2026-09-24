@@ -1,12 +1,9 @@
-﻿using System;
-using System.IO;
-using System.IO.Compression;
-
-namespace YAFC.Audio
+﻿namespace YAFC.Audio
 {
     public sealed class AudioManager : IDisposable
     {
         private readonly TrackerPlayer _player;
+        private readonly AudioSynthesizer _synth;
 
         private bool _initialized;
         private bool _disposed;
@@ -14,7 +11,10 @@ namespace YAFC.Audio
         public AudioManager()
         {
             _player = new TrackerPlayer();
+            _synth = new AudioSynthesizer();
         }
+
+        public AudioSynthesizer Synth => _synth;
 
         public void Initialize()
         {
@@ -24,6 +24,8 @@ namespace YAFC.Audio
                 return;
 
             Raylib_cs.Raylib.InitAudioDevice();
+
+            _synth.Init();
 
             _initialized = true;
         }
@@ -94,6 +96,7 @@ namespace YAFC.Audio
             EnsureInitialized();
 
             _player.Update();
+            _synth.UpdateStream();
         }
 
         public void Dispose()
@@ -102,6 +105,7 @@ namespace YAFC.Audio
                 return;
 
             _player.Dispose();
+            _synth.Shutdown();
 
             if (_initialized)
             {

@@ -29,7 +29,6 @@ namespace YAFC.Audio
 
         public void Init()
         {
-            Raylib.InitAudioDevice();
             _stream = Raylib.LoadAudioStream(SampleRate, 16, 1);
             Raylib.PlayAudioStream(_stream);
         }
@@ -101,7 +100,6 @@ namespace YAFC.Audio
         public void Shutdown()
         {
             Raylib.UnloadAudioStream(_stream);
-            Raylib.CloseAudioDevice();
         }
     }
 }
