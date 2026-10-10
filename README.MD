@@ -1,117 +1,407 @@
-# **YAFC - Yet Another Fantasy Console**
+# YAFC — Yet Another Fantasy Console
 
-A retro-inspired fantasy console emulator built with C# and .NET 8, featuring Lua scripting, sprite graphics, and chiptune audio synthesis.
+YAFC is a small retro-inspired fantasy console and game runtime built with C# and .NET 8.
 
-## 🎮 Overview
+Games are written in Lua and run inside a lightweight virtual console environment with pixel graphics, keyboard input, synthesized chiptune audio, tile-based collision, and self-contained game cartridges.
 
-YAFC is a virtual console platform that allows you to create and play retro-style games. It provides a pixel-art graphics API, input handling, and audio synthesis capabilities, all powered by Lua scripts packaged in `.yafc` cartridge files.
+The project is designed around a simple idea: writing a small game should require only a Lua script and a small set of assets, without having to build a complete engine around it.
 
-## ✨ Features
+## Features
 
-- **Lua Scripting Engine** – Games are written in Lua using the MoonSharp interpreter
-- **Graphics System** – Sprite drawing, text rendering, and a classic 16-color palette
-- **Audio Synthesis** – 4-channel chiptune audio generation (Pulse, Triangle, Noise waveforms)
-- **Input Management** – Keyboard controls mapped to 6 buttons (arrow keys + Z/X)
-- **Cartridge Format** – ZIP-based `.yafc` files containing Lua code and sprite sheets
-- **VRAM Management** – Efficient sprite and resource management with tile-based rendering
-- **Retro Aesthetic** – resizable window, classic gaming feel
+### Lua scripting
 
-## 🏗️ Architecture
+YAFC uses MoonSharp to execute game code inside a restricted Lua environment.
 
-### Core Components
+The runtime provides a small, purpose-built API instead of exposing the underlying C# implementation directly.
 
-- **`ConsoleRuntime`** – Main runtime manager; handles window, audio, input, and Lua lifecycle
-- **`CartridgeManager`** – Loads and extracts game cartridge files (ZIP archives)
-- **`VirtualConsoleApi`** – Lua API bindings for graphics, input, and audio
-- **`VramResourceManager`** – Sprite sheet management and tile rendering
-- **`AudioSynthesizer`** – Waveform generation and audio playback
-- **`InputManager`** – Keyboard input polling and button state tracking
+A game is built around three entry points:
 
-### Game Lifecycle
-
-1. Launch with a `.yafc` cartridge file or use menu mode
-2. Load Lua code and sprite sheet from cartridge
-3. Call Lua functions: `init()`, `update()`, `draw()` each frame
-4. Render graphics and play audio through Raylib
-
-## 🚀 Getting Started
-
-### Requirements
-- .NET 8 SDK or later
-- Windows, macOS, or Linux
-
-### Building
-
-```powershell
-dotnet build YAFC.slnx
-dotnet run --project YAFC
-```
-
-### Running a Game
-
-```powershell
-dotnet run --project YAFC -- path/to/game.yafc
-```
-
-Or launch menu mode:
-```powershell
-dotnet run --project YAFC
-```
-
-## 🎮 Lua API Reference
-
-### Graphics
-```lua
-spr(id, x, y, scale, flipX, flipY)  -- Draw sprite
-cls(r, g, b)                         -- Clear screen
-print(text, x, y, size, r, g, b)     -- Draw text
-```
-
-### Input
-```lua
-btn(id)   -- Check if button held (0-5: left/right/up/down/Z/X)
-btnp(id)  -- Check if button pressed this frame
-```
-
-### Audio
-```lua
-sound(channel, frequency, volume, duty)  -- Play tone on channel 1-4
-```
-
-### Game Structure
 ```lua
 function init()
-  -- Called once at startup
+    -- Called once when the game starts.
 end
 
 function update()
-  -- Called every frame
+    -- Called once per frame.
 end
 
 function draw()
-  -- Called every frame after update
+    -- Called once per frame after update().
 end
 ```
 
-## 📦 Gamecart Format
+`deltaTime` is available as a global value containing the elapsed time since the previous frame.
 
-`.yafc` files are ZIP archives containing:
-- `game.lua` – Main game code
-- `sprites.png` – Sprite sheet (indexed PNG with 16-color palette)
+### Graphics
 
-## Roadmap
+The virtual console uses a logical resolution of `256×192` pixels.
 
-- [ ] Start screen
-- [ ] Implement DPCM (NES-style compressed audio) support
-- [ ] Add support for multiple BIOS regions (2-3 regional variants) 
-- [ ] Gamecart saving
+The final image is scaled to the window using integer scaling and nearest-neighbor filtering, preserving the pixel-art look while allowing the window to be resized.
 
-## 🛠️ Dependencies
+Graphics are based around an `8×8` sprite grid.
 
-- **Raylib-cs** – Graphics and audio rendering
-- **MoonSharp** – Lua scripting
-- **NativeFileDialogSharp** – File dialogs
+Sprites are loaded from a PNG spritesheet and can be drawn with scaling and horizontal or vertical flipping.
 
-## 📄 License
+YAFC also provides a simple tile API. Tiles are addressed by their position on the tile map rather than by screen coordinates.
 
-See LICENSE.txt for details.
+The runtime uses a fixed 16-color palette. Non-transparent pixels from the loaded spritesheet are converted to the closest color from this palette.
+
+### Input
+
+Six virtual buttons are currently available:
+
+|  ID | Key   |
+| --: | ----- |
+| `0` | Left  |
+| `1` | Right |
+| `2` | Up    |
+| `3` | Down  |
+| `4` | Z     |
+| `5` | X     |
+
+Two functions are provided:
+
+```lua
+btn(id)
+```
+
+Returns `true` while the button is held.
+
+```lua
+btnp(id)
+```
+
+Returns `true` on the frame when the button is pressed.
+
+### Audio
+
+YAFC contains a software audio synthesizer running at `44100 Hz`.
+
+Four channels are currently available:
+
+| Channel | Type     |
+| ------: | -------- |
+|     `1` | Pulse    |
+|     `2` | Pulse    |
+|     `3` | Triangle |
+|     `4` | Noise    |
+
+Pulse channels have configurable duty cycles. The audio stream is mixed into a single 16-bit mono output stream.
+
+Audio can be controlled directly from Lua:
+
+```lua
+sound(channel, frequency, volume, duty)
+```
+
+Example:
+
+```lua
+sound(1, 440, 0.5, 0.5)
+```
+
+### Tile collision and movement
+
+YAFC includes a small collision system intended for simple 2D games.
+
+Tiles can be marked as solid:
+
+```lua
+set_tile_solid(tileX, tileY, true)
+```
+
+Their current state can be queried with:
+
+```lua
+get_tile_solid(tileX, tileY)
+```
+
+Movement is performed through:
+
+```lua
+result = move_and_slide(x, y, width, height, velocityX, velocityY)
+```
+
+The collision system performs axis-separated rectangular collision checks against solid tiles and returns information about the resulting movement.
+
+The returned object contains:
+
+```lua
+result.FinalX
+result.FinalY
+
+result.HitWallLeft
+result.HitWallRight
+result.IsGrounded
+result.HitCeiling
+```
+
+YAFC does not provide a complete character controller or physics simulation. Gravity, acceleration, jumping and other game-specific movement logic are intended to be implemented in Lua.
+
+## Lua API
+
+The current Lua API consists of:
+
+### Graphics
+
+```lua
+spr(id, x, y, scale, flipX, flipY)
+```
+
+Draw an `8×8` sprite from the spritesheet.
+
+```lua
+tile(id, tileX, tileY)
+```
+
+Draw a tile at tile-map coordinates.
+
+```lua
+cls(r, g, b)
+```
+
+Clear the screen with the specified RGB color.
+
+```lua
+print_text(text, x, y, size, r, g, b)
+```
+
+Draw text using Raylib's default font.
+
+### Input
+
+```lua
+btn(id)
+btnp(id)
+```
+
+Read virtual button state.
+
+### Audio
+
+```lua
+sound(channel, frequency, volume, duty)
+```
+
+Control one of the four synthesizer channels.
+
+### Physics
+
+```lua
+move_and_slide(x, y, width, height, velocityX, velocityY)
+```
+
+Move a rectangular body and resolve collisions with solid tiles.
+
+```lua
+set_tile_solid(tileX, tileY, solid)
+```
+
+Change the collision state of a tile.
+
+```lua
+get_tile_solid(tileX, tileY)
+```
+
+Query the collision state of a tile.
+
+## Example
+
+A minimal game can look like this:
+
+```lua
+local playerX = 120
+local playerY = 88
+
+function init()
+end
+
+function update()
+    local speed = 60
+
+    if btn(0) then
+        playerX = playerX - speed * deltaTime
+    end
+
+    if btn(1) then
+        playerX = playerX + speed * deltaTime
+    end
+
+    if btn(2) then
+        playerY = playerY - speed * deltaTime
+    end
+
+    if btn(3) then
+        playerY = playerY + speed * deltaTime
+    end
+end
+
+function draw()
+    cls(0, 0, 0)
+    spr(0, playerX, playerY)
+end
+```
+
+## Game cartridges
+
+Games can be loaded either from a `.yafc` archive or directly from a directory.
+
+A `.yafc` cartridge is a ZIP archive with a predefined layout:
+
+```text
+game.yafc
+├── main.lua
+├── spritesheet.png
+├── menu.xm
+└── meta.xml
+```
+
+### `main.lua`
+
+The main Lua script executed by the runtime.
+
+### `spritesheet.png`
+
+The game's sprite sheet.
+
+Sprites are addressed as `8×8` tiles starting from the top-left corner.
+
+### `menu.xm`
+
+XM tracker music file intended for cartridge music.
+
+The cartridge interface already reserves this resource, but music playback is not currently integrated into the game runtime.
+
+### `meta.xml`
+
+Metadata file containing cartridge information such as:
+
+```text
+Id
+Name
+Description
+Version
+```
+
+The current loader reads this resource through its metadata deserializer; the format and filename are subject to change as the cartridge system evolves.
+
+## Running YAFC
+
+### Requirements
+
+* .NET 8 SDK
+* A desktop platform supported by the underlying Raylib runtime
+
+### Build
+
+Clone the repository and build the solution:
+
+```bash
+dotnet build YAFC.slnx
+```
+
+### Start the cartridge menu
+
+Run YAFC without arguments:
+
+```bash
+dotnet run --project YAFC
+```
+
+The menu allows a cartridge to be selected through a native file dialog.
+
+### Run a cartridge directly
+
+A cartridge can also be passed on the command line:
+
+```bash
+dotnet run --project YAFC -- path/to/game.yafc
+```
+
+A directory containing cartridge files can be passed in the same way during development.
+
+## Runtime architecture
+
+The project is intentionally split into small subsystems.
+
+```text
+YAFC/
+├── Audio/
+│   └── AudioSynthesizer
+├── GameCarts/
+│   ├── GameCartFactory
+│   ├── ArchiveGameCart
+│   ├── DirGameCart
+│   ├── CartridgeManager
+│   └── Metadata
+├── Physics/
+│   └── PhysEngine
+├── Video/
+│   └── VramResourceManager
+├── ConsoleRuntime
+├── VirtualConsoleApi
+└── InputManager
+```
+
+`ConsoleRuntime` controls the application lifecycle, window, Lua state, rendering loop, input, audio and cartridge execution.
+
+`VirtualConsoleApi` is the bridge between Lua and the virtual console subsystems.
+
+`VramResourceManager` handles the spritesheet, palette conversion, sprite drawing and tile collision state.
+
+`AudioSynthesizer` generates the four software audio channels.
+
+`PhysEngine` handles basic rectangular movement and collision against solid tiles.
+
+`GameCarts` abstracts cartridge storage and loading. The same interface can represent either a directory or a `.yafc` archive.
+
+## Rendering loop
+
+When a cartridge is started, YAFC performs the following steps:
+
+1. Load the cartridge.
+2. Read `main.lua` and the spritesheet.
+3. Create the MoonSharp Lua state.
+4. Register the virtual console API.
+5. Call `init()`.
+6. Run the main update/draw loop at 60 FPS.
+7. Update the audio stream.
+8. Render the 256×192 framebuffer to the window.
+
+The logical game resolution remains independent from the size of the application window.
+
+Press `F` during gameplay to toggle fullscreen mode.
+
+## Dependencies
+
+YAFC currently uses:
+
+* [Raylib-cs](https://github.com/ChrisDill/Raylib-cs) for graphics, windowing and audio
+* [MoonSharp](https://www.moonsharp.org/) for Lua scripting
+* [rlImGui-cs](https://github.com/NotNotTech/rlImGui-cs) for the cartridge selection interface
+* [NativeFileDialogSharp](https://github.com/mohamadfouladgar/NativeFileDialogSharp) for native file dialogs
+* [Zio](https://github.com/xoofx/Zio) for a unified filesystem abstraction for cartridge directories and archives
+
+## Project status
+
+YAFC is a compact experimental runtime rather than a complete game development suite.
+
+The current codebase focuses on the virtual console itself:
+
+* Lua execution
+* pixel graphics
+* sprite and tile rendering
+* keyboard input
+* procedural chiptune audio
+* basic tile collision
+* cartridge loading
+
+There is currently no dedicated visual editor, level editor, asset pipeline or full-featured debugger included in the repository.
+
+The public API is deliberately small and may change as the console specification develops.
+
+## License
+
+YAFC is distributed under the MIT License.
+
+See [LICENSE.txt](LICENSE.txt) for the full license text.
