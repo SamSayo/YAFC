@@ -1,0 +1,148 @@
+name: CI / Release
+
+on:
+  push:
+    branches: [master]
+    tags: ["v*"]
+  pull_request:
+    branches: [master]
+
+env:
+  DOTNET_VERSION: "8.0.x"            
+  SOLUTION: "YAFC.slnx"              
+  PROJECT: "YAFC/YAFC.csproj"
+  APP_NAME: "YAFC"
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+permissions:
+  contents: read
+
+jobs:
+  build-test:
+    name: Build & test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - run: dotnet restore ${{ env.SOLUTION }}
+
+      - run: dotnet build ${{ env.SOLUTION }} -c Release --no-restore
+
+      - run: dotnet test ${{ env.SOLUTION }} -c Release --no-build --logger "trx" --results-directory TestResults
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-${{ matrix.os }}
+          path: TestResults
+
+  publish:
+    name: Publish (${{ matrix.rid }})
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build-test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - rid: win-x64
+            os: windows-latest
+          - rid: linux-x64
+            os: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Version from tag
+        shell: bash
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"
+
+      - name: Publish
+        shell: bash
+        run: |
+          dotnet publish "$PROJECT" \
+            -c Release \
+            -r ${{ matrix.rid }} \
+            --self-contained true \
+            -p:DebugType=none \
+            -p:Version="$VERSION" \
+            -o "publish/${{ matrix.rid }}"
+
+      - name: Package (Windows → zip)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          Compress-Archive -Path "publish/${{ matrix.rid }}/*" `
+            -DestinationPath "dist/${{ env.APP_NAME }}-${{ env.VERSION }}-${{ matrix.rid }}.zip"
+
+      - name: Package (Linux → tar.gz)
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          mkdir -p dist
+          tar -C "publish/${{ matrix.rid }}" -czf \
+            "dist/${APP_NAME}-${VERSION}-${{ matrix.rid }}.tar.gz" .
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ matrix.rid }}
+          path: dist/*
+          if-no-files-found: error
+
+  release:
+    name: Create GitHub Release
+    needs: publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: dist-*
+          merge-multiple: true
+          path: dist
+
+      - name: Checksums
+        working-directory: dist
+        run: sha256sum * > SHA256SUMS.txt
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          ARGS=()
+
+          if [[ "$GITHUB_REF_NAME" == *-* ]]; then
+            ARGS+=(--prerelease --draft)
+          fi
+
+          PREV_STABLE=$(git tag --list 'v[0-9]*' --sort=-v:refname \
+            | grep -v -- '-' \
+            | grep -vx "$GITHUB_REF_NAME" \
+            | head -n1 || true)
+          if [[ -n "$PREV_STABLE" ]]; then
+            ARGS+=(--notes-start-tag "$PREV_STABLE")
+          fi
+
+          gh release create "$GITHUB_REF_NAME" dist/* \
+            --title "$GITHUB_REF_NAME" \
+            --generate-notes \
+            "${ARGS[@]}"
