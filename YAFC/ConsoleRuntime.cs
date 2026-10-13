@@ -202,6 +202,8 @@ namespace YAFC
                     Raylib.ToggleFullscreen();
                 }
 
+                Raylib.SetWindowTitle($"{cartridge.meta.Id} | {cartridge.meta.Name} | {cartridge.meta.Version} | {cartridge.meta.CanSave} | {Raylib.GetFPS()} ");
+
                 _luaUpdate?.Call();
                 _audio.Update();
 

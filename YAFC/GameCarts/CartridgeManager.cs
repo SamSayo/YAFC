@@ -15,7 +15,10 @@ namespace YAFC.GameCarts
             string mainScriptPath = cart.MainScript.FullName;
             if (!files.FileExists(mainScriptPath))
             {
-                throw new GameCartException("GameCart has no main.lua");
+                string seen = string.Join(", ", files.List("/"));
+                string raw = cart.fs.FileExists(cart.MainScript) ? "yes" : "no";
+                throw new GameCartException(
+                    $"GameCart has no main.lua (snapshot root: [{seen}]; source sees it: {raw})");
             }
             gameCart.luaCode = files.ReadText(mainScriptPath);
 
@@ -28,7 +31,7 @@ namespace YAFC.GameCarts
 
             // Is there a sprite inside this spritesheet
             Image image = Raylib.LoadImageFromMemory(".png", files.ReadBytes(spritePath));
-            if (image.Width <= 16 || image.Height <= 16)
+            if (image.Width < 16 || image.Height < 16)
             {
                 throw new GameCartException("spritesheet.png is not a valid PNG");
             }

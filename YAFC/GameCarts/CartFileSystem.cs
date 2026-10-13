@@ -48,8 +48,9 @@ namespace YAFC.GameCarts
                 UPath dir = path.GetDirectory();
                 if (!memory.DirectoryExists(dir))
                 {
-                    memory.WriteAllBytes(path, ms.ToArray());
+                    memory.CreateDirectory(dir);
                 }
+                memory.WriteAllBytes(path, ms.ToArray());
             }
 
             return new CartFileSystem(new ReadOnlyFileSystem(memory));
