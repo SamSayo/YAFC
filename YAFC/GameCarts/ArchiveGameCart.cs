@@ -10,7 +10,7 @@ namespace YAFC.GameCarts
         public UPath MainScript => "/main.lua";
         public UPath SpriteSheet => "/spritesheet.png";
         public UPath Music => "/menu.xm";
-        public UPath Metadata => "/meta.xml";
+        public UPath Metadata => "/meta.json";
 
         public ArchiveGameCart(string filename)
         {

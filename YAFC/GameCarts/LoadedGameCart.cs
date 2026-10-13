@@ -6,6 +6,10 @@ namespace YAFC.GameCarts
     {
         public string luaCode = string.Empty;
         public Image spriteSheet = default;
-        public Metadata meta = null;
+        public Metadata meta = Metadata.Fallback;
+
+        public CartFileSystem files = null!;
+
+        public SaveRam? save;
     }
 }

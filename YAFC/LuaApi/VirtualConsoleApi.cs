@@ -4,7 +4,7 @@ using YAFC.Audio;
 using YAFC.Physics;
 using YAFC.Video;
 
-namespace YAFC
+namespace YAFC.LuaApi
 {
     [MoonSharpUserData]
     public class VirtualConsoleApi

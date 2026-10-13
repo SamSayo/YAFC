@@ -1,5 +1,4 @@
 ﻿using Raylib_cs;
-using System.Text.Json;
 
 namespace YAFC.GameCarts
 {
@@ -8,100 +7,40 @@ namespace YAFC.GameCarts
         public LoadedGameCart OpenCartridge(string cartPath)
         {
             using IGameCart cart = GameCartFactory.Create(cartPath);
+            CartFileSystem files = CartFileSystem.Snapshot(cart.fs);
 
-            LoadedGameCart gameCart = new();
+            LoadedGameCart gameCart = new() { files = files};
 
-            if (cart.fs.FileExists(cart.MainScript))
+            // Copying main.lua to memory
+            string mainScriptPath = cart.MainScript.FullName;
+            if (!files.FileExists(mainScriptPath))
             {
-                using (Stream stream = cart.fs.OpenFile(cart.MainScript, FileMode.Open, FileAccess.Read))
-                using (StreamReader reader = new StreamReader(stream))
-                {
-                    gameCart.luaCode = reader.ReadToEnd();
-                }
+                throw new GameCartException("GameCart has no main.lua");
+            }
+            gameCart.luaCode = files.ReadText(mainScriptPath);
+
+            // Copying spritesheet.png to memory
+            string spritePath = cart.SpriteSheet.FullName;
+            if (!files.FileExists(spritePath))
+            {
+                throw new GameCartException("GameCart has no spritesheet.png");
             }
 
-            if (cart.fs.FileExists(cart.SpriteSheet))
+            // Is there a sprite inside this spritesheet
+            Image image = Raylib.LoadImageFromMemory(".png", files.ReadBytes(spritePath));
+            if (image.Width <= 16 || image.Height <= 16)
             {
-                using (Stream stream = cart.fs.OpenFile(cart.SpriteSheet, FileMode.Open, FileAccess.Read))
-                using (MemoryStream ms = new())
-                {
-                    stream.CopyTo(ms);
-                    byte[] rawImageData = ms.ToArray();
-
-                    gameCart.spriteSheet = Raylib.LoadImageFromMemory(".png", rawImageData);
-                }
+                throw new GameCartException("spritesheet.png is not a valid PNG");
             }
-            else
-            {
-                int candidatesNum = 0;
-                byte[] rawImageData;
-                foreach (var spriteCandidate in cart.fs.EnumeratePaths("/", "*.png", SearchOption.TopDirectoryOnly, Zio.SearchTarget.File))
-                {
-                    candidatesNum++;
-                    using (Stream stream = cart.fs.OpenFile(spriteCandidate, FileMode.Open, FileAccess.Read))
-                    using (MemoryStream ms = new())
-                    {
-                        stream.CopyTo(ms);
-                        rawImageData = ms.ToArray();
+            gameCart.spriteSheet = image;
 
-                        gameCart.spriteSheet = Raylib.LoadImageFromMemory(".png", rawImageData);
-                    }
-                }
-            }
-
-            if (cart.fs.FileExists(cart.Metadata))
-            {
-                using (Stream stream = cart.fs.OpenFile(cart.Metadata, FileMode.Open, FileAccess.Read))
-                using (StreamReader reader = new(stream))
-                {
-                    gameCart.meta = JsonSerializer.Deserialize<Metadata>(reader.ReadToEnd());
-                }
-            }
-            else
-            {
-                string fallbackMeta = "{" +
-                    "\"Id\":\"no.game.id\"," +
-                    "\"Name\":\"YAFC\"," +
-                    "\"Description\":\"Please, make meta.json\"," +
-                    "\"Version\": \"0.0.0\"" +
-                    "}";
-
-                gameCart.meta = JsonSerializer.Deserialize<Metadata>(fallbackMeta);
-            }
+            // Reading manifest from gamecart
+            string metaPath = cart.Metadata.FullName;
+            gameCart.meta = files.FileExists(metaPath)
+                ? Metadata.Parse(files.ReadText(metaPath))
+                : Metadata.Fallback;
 
             return gameCart;
-
-            /*
-            using (ZipArchive cart = ZipFile.OpenRead(cartPath))
-            {
-                foreach (ZipArchiveEntry file in cart.Entries)
-                {
-                    Console.WriteLine($"Cart file: {file.FullName}, Size: {file.Length / 1000} KB");
-
-                    if (file.Name.EndsWith(".lua", StringComparison.OrdinalIgnoreCase))
-                    {
-                        using (Stream stream = file.Open())
-                        using (StreamReader reader = new StreamReader(stream))
-                        {
-                            luaCode = reader.ReadToEnd();
-                        }
-                    }
-                    else if (file.Name.EndsWith(".png", StringComparison.OrdinalIgnoreCase))
-                    {
-                        using (Stream stream = file.Open())
-                        using (MemoryStream ms = new())
-                        {
-                            stream.CopyTo(ms);
-                            byte[] rawImageData = ms.ToArray();
-
-                            spriteSheet = Raylib.LoadImageFromMemory(".png", rawImageData);
-                        }
-                    }
-                }
-            }
-
-            return (luaCode, spriteSheet);
-            */
         }
     }
 }

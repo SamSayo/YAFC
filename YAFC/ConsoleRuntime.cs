@@ -5,10 +5,12 @@ using Raylib_cs;
 using rlImGui_cs;
 using System.Diagnostics;
 using System.Numerics;
+
 using YAFC.Audio;
 using YAFC.GameCarts;
 using YAFC.Physics;
 using YAFC.Video;
+using YAFC.LuaApi;
 
 namespace YAFC
 {
@@ -140,6 +142,7 @@ namespace YAFC
             _luaState = new Script(CoreModules.Preset_SoftSandbox);
             
             var api = new VirtualConsoleApi(_vram, _input, _audio, _physEngine);
+            LuaCartApi.Install(_luaState, cartridge.files, cartridge.save);
             _luaState.Globals["api"] = api;
 
             _luaState.DoString(@"
@@ -175,9 +178,17 @@ namespace YAFC
             Stopwatch stopwatch = Stopwatch.StartNew();
             double lastTime = 0;
 
+            double nextFlush = 5;
+
             while (!Raylib.WindowShouldClose())
             {
                 double currentTime = stopwatch.Elapsed.TotalSeconds;
+
+                if (currentTime >= nextFlush)
+                {
+                    cartridge.save?.FlushIfDirty();
+                    nextFlush = currentTime + 5;
+                }
 
                 float deltaTime = (float)(currentTime - lastTime);
                 lastTime = currentTime;
@@ -219,6 +230,7 @@ namespace YAFC
                 Raylib.EndDrawing();
             }
 
+            cartridge.save?.FlushIfDirty();
             _audio.Dispose();
             _vram.Unload();
             Raylib.CloseWindow();
