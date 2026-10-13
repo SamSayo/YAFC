@@ -142,6 +142,7 @@ namespace YAFC
             _luaState = new Script(CoreModules.Preset_SoftSandbox);
             
             var api = new VirtualConsoleApi(_vram, _input, _audio, _physEngine);
+            Console.WriteLine($"save: {(cartridge.save == null ? "null" : cartridge.save.Size.ToString())}");
             LuaCartApi.Install(_luaState, cartridge.files, cartridge.save);
             _luaState.Globals["api"] = api;
 

@@ -43,6 +43,11 @@ namespace YAFC.GameCarts
                 ? Metadata.Parse(files.ReadText(metaPath))
                 : Metadata.Fallback;
 
+            if (gameCart.meta.CanSave)
+            {
+                gameCart.save = SaveRam.Open(gameCart.meta.Id, gameCart.meta.SaveSize);
+            }
+
             return gameCart;
         }
     }
