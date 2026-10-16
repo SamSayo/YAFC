@@ -37,34 +37,28 @@ namespace YAFC.LuaApi
         public bool btnp(int id) => _input.IsBtnPressed(id);
 
         // --- Audio ---
+        private const float MaxSoundFreq = 22050f;
+
         public void sound(int ch, float freq, float vol, float duty = 0.5f)
         {
-            vol = Math.Clamp(vol, 0f, 1f);
+            freq = float.IsFinite(freq) ? Math.Clamp(freq, 0f, MaxSoundFreq) : 0f;
+            vol = float.IsFinite(vol) ? Math.Clamp(vol, 0f, 1f) : 0f;
+            duty = float.IsFinite(duty) ? Math.Clamp(duty, 0f, 1f) : 0.5f;
 
-            if (ch == 1)
+            AudioSynthesizer.ChannelConfig? channel = ch switch
             {
-                _audio.Synth.Pulse1.Frequency = freq;
-                _audio.Synth.Pulse1.Volume = vol;
-                _audio.Synth.Pulse1.Duty = duty;
-            }
-            else if (ch == 2)
-            {
-                _audio.Synth.Pulse2.Frequency = freq;
-                _audio.Synth.Pulse2.Volume = vol;
-                _audio.Synth.Pulse2.Duty = duty;
-            }
-            else if (ch == 3)
-            {
-                _audio.Synth.Triangle.Frequency = freq;
-                _audio.Synth.Triangle.Volume = vol;
-                _audio.Synth.Triangle.Duty = duty;
-            }
-            else if (ch == 4)
-            {
-                _audio.Synth.Noise.Frequency = freq;
-                _audio.Synth.Noise.Volume = vol;
-                _audio.Synth.Noise.Duty = duty;
-            }
+                1 => _audio.Synth.Pulse1,
+                2 => _audio.Synth.Pulse2,
+                3 => _audio.Synth.Triangle,
+                4 => _audio.Synth.Noise,
+                _ => null
+            };
+
+            if (channel == null) return;
+
+            channel.Frequency = freq;
+            channel.Volume = vol;
+            channel.Duty = duty;
         }
 
         // --- Physics ---
