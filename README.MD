@@ -205,6 +205,32 @@ get_tile_solid(tileX, tileY)
 
 Query the collision state of a tile.
 
+### File System
+
+```lua
+fs.read(path)
+```
+
+Reads and returns the complete text content of the specified file.
+
+```lua
+fs.exists(path)
+```
+
+Checks whether a file or directory exists at the given path and returns a boolean value.
+
+```lua
+fs.list(dir)
+```
+
+Retrieves a table of names of all files and folders contained within the specified directory.
+
+```lua
+fs.json(path)
+```
+
+Reads a file and automatically parses its JSON content into a usable object, array, string, number or boolean.
+
 ## Example
 
 A minimal game can look like this:
