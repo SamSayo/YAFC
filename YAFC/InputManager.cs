@@ -11,7 +11,9 @@ namespace YAFC
             { 2, KeyboardKey.Up },
             { 3, KeyboardKey.Down },
             { 4, KeyboardKey.Z },
-            { 5, KeyboardKey.X }
+            { 5, KeyboardKey.X },
+            { 6, KeyboardKey.Enter },
+            { 7, KeyboardKey.LeftShift }
         };
 
         public bool IsBtnDown(int buttonId)
