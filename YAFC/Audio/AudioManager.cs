@@ -64,11 +64,19 @@
             _player.Resume(id);
         }
 
-        public void SetXmVolume(
-            int id,
-            float volume)
+        public void SetXmVolume(int id, float volume)
         {
             _player.SetVolume(id, volume);
+        }
+
+        public void SetXmLooping(int id, bool looping)
+        {
+            _player.SetLooping(id, looping);
+        }
+
+        public bool IsXmLooping(int id)
+        {
+            return _player.IsLooping(id);
         }
 
         public float GetXmVolume(int id)
@@ -105,10 +113,11 @@
                 return;
 
             _player.Dispose();
-            _synth.Shutdown();
 
             if (_initialized)
             {
+                _synth.Shutdown();
+
                 Raylib_cs.Raylib.CloseAudioDevice();
                 _initialized = false;
             }

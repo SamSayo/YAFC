@@ -1,5 +1,4 @@
 ﻿using Raylib_cs;
-using System;
 
 namespace YAFC.Audio
 {
@@ -13,7 +12,7 @@ namespace YAFC.Audio
         public ChannelConfig Triangle = new() { Type = WaveType.Triangle };
         public ChannelConfig Noise = new() { Type = WaveType.Noise };
 
-        public enum WaveType { Pulse, Triangle, Noise}
+        public enum WaveType { Pulse, Triangle, Noise }
 
         public class ChannelConfig
         {

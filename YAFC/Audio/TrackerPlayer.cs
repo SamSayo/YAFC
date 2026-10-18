@@ -1,11 +1,12 @@
-﻿using ImGuiNET;
-using Raylib_cs;
-using System.Xml.Serialization;
+﻿using Raylib_cs;
 
 namespace YAFC.Audio
 {
     public sealed class TrackerPlayer : IDisposable
     {
+        public const int MaxTracks = 8;
+        public const int MaxDataBytes = 2_621_440;
+
         private sealed class Track
         { 
             public Music Music;
@@ -118,6 +119,9 @@ namespace YAFC.Audio
         {
             Track track = GetTrack(id);
 
+            if (float.IsNaN(volume))
+                volume = 0.0f;
+
             volume = Math.Clamp(volume, 0.0f, 1.0f);
 
             track.Volume = volume;
@@ -128,6 +132,16 @@ namespace YAFC.Audio
         public float GetVolume(int id)
         {
             return GetTrack(id).Volume;
+        }
+
+        public void SetLooping(int id, bool looping)
+        {
+            GetTrack(id).Music.Looping = looping;
+        }
+
+        public bool IsLooping(int id)
+        {
+            return GetTrack(id).Music.Looping;
         }
 
         public bool IsPlaying(int id)
@@ -146,9 +160,16 @@ namespace YAFC.Audio
 
             foreach (Track track in _tracks.Values)
             {
-                if (track.Playing)
+                if (!track.Playing || track.Paused)
                 {
-                    Raylib.UpdateMusicStream(track.Music);
+                    continue;
+                }
+
+                Raylib.UpdateMusicStream(track.Music);
+
+                if (!Raylib.IsMusicStreamPlaying(track.Music))
+                {
+                    track.Playing = false;
                 }
             }
         }

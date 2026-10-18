@@ -144,6 +144,7 @@ namespace YAFC
             var api = new VirtualConsoleApi(_vram, _input, _audio, _physEngine);
             Console.WriteLine($"save: {(cartridge.save == null ? "null" : cartridge.save.Size.ToString())}");
             LuaCartApi.Install(_luaState, cartridge.files, cartridge.save);
+            LuaMusicApi.Install(_luaState, _audio, cartridge.files);
             _luaState.Globals["api"] = api;
 
             _luaState.DoString(@"
