@@ -50,14 +50,16 @@ The runtime uses a fixed 16-color palette. Non-transparent pixels from the loade
 
 Six virtual buttons are currently available:
 
-|  ID | Key   |
-| --: | ----- |
-| `0` | Left  |
-| `1` | Right |
-| `2` | Up    |
-| `3` | Down  |
-| `4` | Z     |
-| `5` | X     |
+|  ID | Key     |
+| --: | ------- |
+| `0` | Left    |
+| `1` | Right   |
+| `2` | Up      |
+| `3` | Down    |
+| `4` | Z       |
+| `5` | X       |
+| `6` | Enter   |
+| `7` | R. Shift|
 
 Two functions are provided:
 
