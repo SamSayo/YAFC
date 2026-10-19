@@ -59,7 +59,7 @@ Six virtual buttons are currently available:
 | `4` | Z       |
 | `5` | X       |
 | `6` | Enter   |
-| `7` | L. Shift|
+| `7` | R. Shift|
 
 Two functions are provided:
 
