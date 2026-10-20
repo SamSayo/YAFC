@@ -300,7 +300,7 @@ XM tracker music file intended for cartridge music.
 
 The cartridge interface already reserves this resource, but music playback is not currently integrated into the game runtime.
 
-### `meta.xml`
+### `meta.json`
 
 Metadata file containing cartridge information such as:
 
