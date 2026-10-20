@@ -11,6 +11,7 @@ using YAFC.GameCarts;
 using YAFC.Physics;
 using YAFC.Video;
 using YAFC.LuaApi;
+using YAFC.Input;
 
 namespace YAFC
 {

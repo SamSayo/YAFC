@@ -3,6 +3,7 @@ using Raylib_cs;
 using YAFC.Audio;
 using YAFC.Physics;
 using YAFC.Video;
+using YAFC.Input;
 
 namespace YAFC.LuaApi
 {
