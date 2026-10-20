@@ -280,8 +280,7 @@ A `.yafc` cartridge is a ZIP archive with a predefined layout:
 game.yafc
 ├── main.lua
 ├── spritesheet.png
-├── menu.xm
-└── meta.xml
+└── meta.json
 ```
 
 ### `main.lua`
