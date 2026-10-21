@@ -30,7 +30,7 @@ namespace YAFC.Video
         };
 
 
-        public VramResourceManager(int tileSize = 8)
+        public VramResourceManager(int tileSize = 16)
         {
             _tileSize = tileSize;
         }
