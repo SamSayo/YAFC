@@ -38,7 +38,7 @@ The virtual console uses a logical resolution of `256×192` pixels.
 
 The final image is scaled to the window using integer scaling and nearest-neighbor filtering, preserving the pixel-art look while allowing the window to be resized.
 
-Graphics are based around an `8×8` sprite grid.
+Graphics are based around an `16×16` sprite grid.
 
 Sprites are loaded from a PNG spritesheet and can be drawn with scaling and horizontal or vertical flipping.
 
