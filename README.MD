@@ -291,13 +291,7 @@ The main Lua script executed by the runtime.
 
 The game's sprite sheet.
 
-Sprites are addressed as `8×8` tiles starting from the top-left corner.
-
-### `menu.xm`
-
-XM tracker music file intended for cartridge music.
-
-The cartridge interface already reserves this resource, but music playback is not currently integrated into the game runtime.
+Sprites are addressed as `16×16` tiles starting from the top-left corner.
 
 ### `meta.json`
 
@@ -342,45 +336,10 @@ The menu allows a cartridge to be selected through a native file dialog.
 A cartridge can also be passed on the command line:
 
 ```bash
-dotnet run --project YAFC -- path/to/game.yafc
+dotnet run --project YAFC path/to/game.yafc
 ```
 
 A directory containing cartridge files can be passed in the same way during development.
-
-## Runtime architecture
-
-The project is intentionally split into small subsystems.
-
-```text
-YAFC/
-├── Audio/
-│   └── AudioSynthesizer
-├── GameCarts/
-│   ├── GameCartFactory
-│   ├── ArchiveGameCart
-│   ├── DirGameCart
-│   ├── CartridgeManager
-│   └── Metadata
-├── Physics/
-│   └── PhysEngine
-├── Video/
-│   └── VramResourceManager
-├── ConsoleRuntime
-├── VirtualConsoleApi
-└── InputManager
-```
-
-`ConsoleRuntime` controls the application lifecycle, window, Lua state, rendering loop, input, audio and cartridge execution.
-
-`VirtualConsoleApi` is the bridge between Lua and the virtual console subsystems.
-
-`VramResourceManager` handles the spritesheet, palette conversion, sprite drawing and tile collision state.
-
-`AudioSynthesizer` generates the four software audio channels.
-
-`PhysEngine` handles basic rectangular movement and collision against solid tiles.
-
-`GameCarts` abstracts cartridge storage and loading. The same interface can represent either a directory or a `.yafc` archive.
 
 ## Rendering loop
 
