@@ -1,6 +1,6 @@
 ﻿using Raylib_cs;
 
-namespace YAFC
+namespace YAFC.Input
 {
     public class InputManager
     {
