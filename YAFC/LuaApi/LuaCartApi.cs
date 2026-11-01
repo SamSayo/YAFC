@@ -3,10 +3,12 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using YAFC.GameCarts;
+using YAFC.LuaApi.Extensions;
+using YAFC.LuaApi.Helpers;
 
 namespace YAFC.LuaApi
 {
-    public sealed class LuaCartApi
+    public sealed class LuaCartApi : ILuaApi
     {
         private static readonly Regex ModuleName = new(@"^[A-Za-z0-9_]+(\.[A-Za-z0-9_]+)*$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
@@ -17,16 +19,14 @@ namespace YAFC.LuaApi
         private readonly Dictionary<string, DynValue> _loaded = new();
         private readonly HashSet<string> _loading = new();
 
-        private LuaCartApi(Script script, CartFileSystem files, SaveRam? save)
+        public LuaCartApi(LuaApiContext ctx)
         {
-            _script = script;
-            _files = files;
-            _save = save;
+            _script = ctx.Script;
+            _files = ctx.Files;
+            _save = ctx.Save;
         }
 
-        public static void Install(Script script, CartFileSystem files, SaveRam? save) => new LuaCartApi(script, files, save).Register();
-
-        private void Register()
+        public void Register()
         {
             var fs = new Table(_script);
             fs.Set("read", DynValue.NewCallback(FsRead));
@@ -44,34 +44,11 @@ namespace YAFC.LuaApi
             _script.Globals.Set("require", DynValue.NewCallback(Require));
         }
 
-        private static DynValue Fail(string message)
-            => DynValue.NewTuple(DynValue.Nil, DynValue.NewString(message));
-
-        private static DynValue Fail(Exception e) => Fail(e switch
-        {
-            GameCartException => e.Message,
-            FileNotFoundException => "file not found",
-            DirectoryNotFoundException => "directory not found",
-            JsonException => "json: " + e.Message,
-            _ => "io error"
-        });
-
-        private static string StringArg(CallbackArguments args, int index, string func)
-            => args.AsType(index, func, DataType.String, false).String;
-
-        private static int IntArg(CallbackArguments args, int index, string func)
-        {
-            double d = args.AsType(index, func, DataType.Number, false).Number;
-            if (d != Math.Floor(d) || d < 0 || d > int.MaxValue)
-            {
-                throw new ScriptRuntimeException($"bad argument #{index + 1} to '{func}' (non-negative integer expected)");
-            }
-            return (int)d;
-        }
+        
 
         private DynValue FsRead(ScriptExecutionContext ctx, CallbackArguments args)
         {
-            string path = StringArg(args, 0, "fs.read");
+            string path = LuaApiExtensions.StringArg(args, 0, "fs.read");
             bool binary = args.Count > 1 && args[1].Type == DataType.String && args[1].String == "b";
 
             try
@@ -82,16 +59,16 @@ namespace YAFC.LuaApi
             }
             catch (Exception e)
             {
-                return Fail(e);
+                return LuaApiResult.Fail(e);
             }
         }
 
         private DynValue FsExists(ScriptExecutionContext ctx, CallbackArguments args)
-            => DynValue.NewBoolean(_files.FileExists(StringArg(args, 0, "fs.exists")));
+            => DynValue.NewBoolean(_files.FileExists(LuaApiExtensions.StringArg(args, 0, "fs.exists")));
 
         private DynValue FsList(ScriptExecutionContext ctx, CallbackArguments args)
         {
-            string dir = StringArg(args, 0, "fs.list");
+            string dir = LuaApiExtensions.StringArg(args, 0, "fs.list");
 
             try
             {
@@ -105,13 +82,13 @@ namespace YAFC.LuaApi
             }
             catch (Exception e)
             {
-                return Fail(e);
+                return LuaApiResult.Fail(e);
             }
         }
 
         private DynValue FsJson(ScriptExecutionContext ctx, CallbackArguments args)
         {
-            string path = StringArg(args, 0, "fs.json");
+            string path = LuaApiExtensions.StringArg(args, 0, "fs.json");
             try
             {
                 var options = new JsonDocumentOptions
@@ -125,7 +102,7 @@ namespace YAFC.LuaApi
             }
             catch (Exception e)
             {
-                return Fail(e);
+                return LuaApiResult.Fail(e);
             }
         }
 
@@ -164,7 +141,7 @@ namespace YAFC.LuaApi
 
         private DynValue Require(ScriptExecutionContext ctx, CallbackArguments args)
         {
-            string name = StringArg(args, 0, "require");
+            string name = LuaApiExtensions.StringArg(args, 0, "require");
 
             if (!ModuleName.IsMatch(name))
             {
@@ -211,30 +188,30 @@ namespace YAFC.LuaApi
 
         private DynValue SaveRead(ScriptExecutionContext ctx, CallbackArguments args)
         {
-            int offset = IntArg(args, 0, "save.read");
-            int length = IntArg(args, 1, "save.read");
+            int offset = LuaApiExtensions.IntArg(args, 0, "save.read");
+            int length = LuaApiExtensions.IntArg(args, 1, "save.read");
 
-            if (_save == null) return Fail("cartridge has no save memory");
-            if (!_save.TryRead(offset, length, out byte[] data)) return Fail("out of range");
+            if (_save == null) return LuaApiResult.Fail("cartridge has no save memory");
+            if (!_save.TryRead(offset, length, out byte[] data)) return LuaApiResult.Fail("out of range");
 
             return DynValue.NewString(Encoding.Latin1.GetString(data));
         }
 
         private DynValue SaveWrite(ScriptExecutionContext ctx, CallbackArguments args)
         {
-            int offset = IntArg(args, 0, "save.write");
-            string text = StringArg(args, 1, "save.write");
+            int offset = LuaApiExtensions.IntArg(args, 0, "save.write");
+            string text = LuaApiExtensions.StringArg(args, 1, "save.write");
 
-            if (_save == null) return Fail("gamecart has no save memory");
+            if (_save == null) return LuaApiResult.Fail("gamecart has no save memory");
 
             var bytes = new byte[text.Length];
             for (int i = 0; i < text.Length; i++)
             {
-                if (text[i] > 0xFF) return Fail("string contains non-byte characters");
+                if (text[i] > 0xFF) return LuaApiResult.Fail("string contains non-byte characters");
                 bytes[i] = (byte)text[i];
             }
 
-            return _save.TryWrite(offset, bytes) ? DynValue.True : Fail("out of range");
+            return _save.TryWrite(offset, bytes) ? DynValue.True : LuaApiResult.Fail("out of range");
         }
     }
 }

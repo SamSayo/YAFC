@@ -143,8 +143,9 @@ namespace YAFC
             
             var api = new VirtualConsoleApi(_vram, _input, _audio, _physEngine);
             Console.WriteLine($"save: {(cartridge.save == null ? "null" : cartridge.save.Size.ToString())}");
-            LuaCartApi.Install(_luaState, cartridge.files, cartridge.save);
-            LuaMusicApi.Install(_luaState, _audio, cartridge.files);
+
+            InstallApis(cartridge);
+
             _luaState.Globals["api"] = api;
 
             _luaState.DoString(@"
@@ -238,6 +239,26 @@ namespace YAFC
             _audio.Dispose();
             _vram.Unload();
             Raylib.CloseWindow();
+        }
+
+        private void InstallApis(LoadedGameCart cart)
+        {
+            var ctx = new LuaApiContext
+            {
+                Script  = _luaState,
+                Files   = cart.files,
+                Audio   = _audio,
+                Save    = cart.save
+            };
+
+            ILuaApi[] apis =
+                [
+                    new LuaCartApi(ctx),
+                    new LuaMusicApi(ctx)
+                ];
+
+            foreach (var api in apis)
+                api.Register();
         }
     }
 }
