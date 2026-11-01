@@ -40,7 +40,8 @@ namespace YAFC
 
             rlImGui.Setup(true);
 
-            Shader noiseShader = Raylib.LoadShader(null, "resources\\tv.shdr");
+            string shaderPath = Path.Combine(AppContext.BaseDirectory, "resources", "tv.shdr");
+            Shader noiseShader = Raylib.LoadShader(null, shaderPath);
 
             int timeLoc = Raylib.GetShaderLocation(noiseShader, "uTime");
 
