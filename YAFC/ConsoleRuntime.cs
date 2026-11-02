@@ -46,9 +46,8 @@ namespace YAFC
             int timeLoc = Raylib.GetShaderLocation(noiseShader, "uTime");
 
             Raylib.InitAudioDevice();
-            Raylib.SetTargetFPS(30);
+            Raylib.SetTargetFPS(60);
 
-            //Sound errorSound = Raylib.LoadSound("resources\\error.ogg");
             string cartPath = string.Empty;
             bool canBreak = false;
 
@@ -140,28 +139,11 @@ namespace YAFC
 
             _vram.LoadSpriteSheet(cartridge.spriteSheet);
 
-            UserData.RegisterType<VirtualConsoleApi>();
             _luaState = new Script(CoreModules.Preset_SoftSandbox);
             
-            var api = new VirtualConsoleApi(_vram, _input, _audio, _physEngine);
             Console.WriteLine($"save: {(cartridge.save == null ? "null" : cartridge.save.Size.ToString())}");
 
             InstallApis(cartridge);
-
-            _luaState.Globals["api"] = api;
-
-            _luaState.DoString(@"
-                spr = function(id, x, y, s, fx, fy) api.spr(id, x, y, s or 1, fx or false, fy or false) end
-                cls = function(r, g, b) api.cls(r, g, b) end
-                tile = function(id, x, y) api.tile(id, x, y) end
-                print_text = function(t, x, y, size, r, g, b) api.print(t, x, y, size, r, g, b) end
-                btn = function(id) return api.btn(id) end
-                btnp = function(id) return api.btnp(id) end
-                sound = function(ch, freq, vol, duty) api.sound(ch, freq, vol, duty or 0.5) end
-                move_and_slide = function(x, y, w, h, vx, vy) return api.move_and_slide(x, y, w, h, vx, vy) end
-                set_tile_solid = function(x, y, solid) return api.set_tile_solid(x, y, solid) end
-                get_tile_solid = function(x, y) return api.get_tile_solid(x, y) end
-            ");
 
             try
             {
@@ -250,13 +232,20 @@ namespace YAFC
                 Script  = _luaState,
                 Files   = cart.files,
                 Audio   = _audio,
+                Input   = _input,
+                Phys    = _physEngine,
+                Vram    = _vram,
                 Save    = cart.save
             };
 
             ILuaApi[] apis =
                 [
                     new LuaCartApi(ctx),
-                    new LuaMusicApi(ctx)
+                    new LuaMusicApi(ctx),
+                    new LuaPhysicsApi(ctx),
+                    new LuaInputApi(ctx),
+                    new LuaSynthApi(ctx),
+                    new LuaGraphicsApi(ctx)
                 ];
 
             foreach (var api in apis)
