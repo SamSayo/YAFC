@@ -4,20 +4,29 @@ using System.Text.RegularExpressions;
 
 namespace YAFC.GameCarts
 {
-    public sealed class Metadata
+    [JsonSerializable(typeof(Metadata))]
+    internal partial class MetadataJsonContext : JsonSerializerContext
+    {
+    }
+
+    public sealed partial class Metadata
     {
         [JsonPropertyName("id")]
         public string Id { get; set; } = string.Empty;
+
         [JsonPropertyName("name")]
         public string Name { get; set; } = string.Empty;
+
         [JsonPropertyName("description")]
         public string Description { get; set; } = string.Empty;
+
         [JsonPropertyName("version")]
         public string Version { get; set; } = string.Empty;
 
         [JsonPropertyName("save_size")]
         public int SaveSize { get; set; }
 
+        [JsonIgnore]
         public bool CanSave => SaveSize > 0 && IsValidId(Id);
 
         public static Metadata Fallback => new()
@@ -29,15 +38,16 @@ namespace YAFC.GameCarts
             SaveSize = 0
         };
 
-        private static readonly JsonSerializerOptions Options = new()
+        private static readonly MetadataJsonContext JsonContext = new(new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true,
             ReadCommentHandling = JsonCommentHandling.Skip,
             AllowTrailingCommas = true,
             MaxDepth = 8
-        };
+        });
 
-        private static readonly Regex idRegex = new(@"^[a-z0-9]+([._-][a-z0-9]+)*$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+        [GeneratedRegex(@"^[a-z0-9]+([._-][a-z0-9]+)*\z", RegexOptions.CultureInvariant)]
+        private static partial Regex IdRegex();
 
         private static readonly HashSet<string> ReservedNames = new(StringComparer.Ordinal)
         {
@@ -51,7 +61,7 @@ namespace YAFC.GameCarts
             if (string.IsNullOrEmpty(id) || id.Length > 64)
                 return false;
 
-            if (!idRegex.IsMatch(id))
+            if (!IdRegex().IsMatch(id))
                 return false;
 
             string stem = id.Split('.')[0];
@@ -64,7 +74,7 @@ namespace YAFC.GameCarts
 
             try
             {
-                meta = JsonSerializer.Deserialize<Metadata>(json, Options);
+                meta = JsonSerializer.Deserialize(json, JsonContext.Metadata);
             }
             catch (JsonException e)
             {
