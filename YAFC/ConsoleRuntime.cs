@@ -222,6 +222,7 @@ namespace YAFC
             cartridge.save?.FlushIfDirty();
             _audio.Dispose();
             _vram.Unload();
+            Raylib.UnloadRenderTexture(render);
             Raylib.CloseWindow();
         }
 
