@@ -3,7 +3,6 @@ using MoonSharp.Interpreter;
 using NativeFileDialogSharp;
 using Raylib_cs;
 using rlImGui_cs;
-using System.Diagnostics;
 using System.Numerics;
 
 using YAFC.Audio;
@@ -83,11 +82,18 @@ namespace YAFC
             UserData.RegisterType<MoveResult>();
         }
 
-        public void Start()
+        public void Start(string? cartPath = null)
         {
             try
             {
                 InitializeSystem();
+
+                if (cartPath != null)
+                {
+                    _cartPath = cartPath;
+                    _currentScreen = ConsoleScreen.Logo;
+                }
+
 
                 EnterState(_currentScreen);
                 ApplyPendingTransitions();
