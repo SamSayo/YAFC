@@ -530,7 +530,7 @@ namespace YAFC
             }
 
             if (Raylib.IsKeyPressed(KeyboardKey.F))
-                Raylib.ToggleBorderlessWindowed();
+                Raylib.ToggleFullscreen();
 
             if (_gameCart == null || _luaState == null)
             {
