@@ -74,6 +74,15 @@ namespace YAFC.Video
             DrawSprite(tileId, x, y);
         }
 
+        private static int DistanceSq(Color a, Color b)
+        {
+            int dr = a.R - b.R;
+            int dg = a.G - b.G;
+            int db = a.B - b.B;
+
+            return dr * dr + dg * dg + db * db;
+        }
+
         private static Color FindClosestColor(Color src, Color[] palette)
         {
             Color closest = palette[0];
@@ -81,40 +90,45 @@ namespace YAFC.Video
 
             for (int i = 0; i < palette.Length; i++)
             {
-                float dr = src.R - palette[i].R;
-                float dg = src.G - palette[i].G;
-                float db = src.B - palette[i].B;
-
-                float distance = dr * dr + dg * dg + db * db;
+                int distance = DistanceSq(src, palette[i]);
 
                 if (distance < minDistance)
                 {
                     minDistance = distance;
                     closest = palette[i];
+                    if (distance == 0) break;
                 }
             }
 
             return closest;
         }
 
-        public static void ApplyFixedPalette(ref Image image, Color[] palette)
+        public static unsafe void ApplyFixedPalette(ref Image image, Color[] palette)
         {
             if (palette == null || palette.Length == 0) return;
 
-            unsafe
-            {
-                Color* pixels = Raylib.LoadImageColors(image);
-                int pixelCount = image.Width * image.Height;
+            if (image.Format != PixelFormat.UncompressedR8G8B8A8)
+                Raylib.ImageFormat(ref image, PixelFormat.UncompressedR8G8B8A8);
 
-                for (int i = 0; i < pixelCount; i++)
+            Color* pixels = (Color*)image.Data;
+            int pixelCount = image.Width * image.Height;
+
+            var cache = new Dictionary<uint, Color>();
+
+            for (int i = 0; i < pixelCount; i++)
+            {
+                Color src = pixels[i];
+                if (src.A == 0) continue;
+
+                uint key = ((uint)src.R << 16) | ((uint)src.G << 8) | src.B;
+
+                if (!cache.TryGetValue(key, out Color mapped))
                 {
-                    if (pixels[i].A > 0)
-                    {
-                        pixels[i] = FindClosestColor(pixels[i], palette);
-                    }
+                    mapped = FindClosestColor(src, palette);
+                    cache[key] = mapped;
                 }
 
-                Raylib.UnloadImageColors(pixels);
+                pixels[i] = new Color(mapped.R, mapped.G, mapped.B, src.A);
             }
         }
 
