@@ -150,7 +150,7 @@ The current Lua API consists of:
 spr(id, x, y, scale, flipX, flipY)
 ```
 
-Draw an `8×8` sprite from the spritesheet.
+Draw an `16×16` sprite from the spritesheet.
 
 ```lua
 tile(id, tileX, tileY)
