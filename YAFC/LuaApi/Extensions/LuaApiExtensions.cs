@@ -29,6 +29,26 @@ namespace YAFC.LuaApi.Extensions
             return (byte)d;
         }
 
+        public static int WholeNumber(CallbackArguments args, int index, string func)
+        {
+            double d = args.AsType(index, func, DataType.Number, false).Number;
+
+            if (double.IsNaN(d) || d != Math.Floor(d) || d < int.MinValue || d > int.MaxValue)
+                throw new ScriptRuntimeException($"bad argument #{index + 1} to '{func}' (integer excepted)");
+
+            return (int)d;
+        }
+
+        public static int FlooredNumber(CallbackArguments args, int index, string func)
+        {
+            double d = args.AsType(index, func, DataType.Number, false).Number;
+
+            if (double.IsNaN(d))
+                throw new ScriptRuntimeException($"bad argument #{index + 1} to '{func}' (number excepted)");
+
+            return (int)Math.Clamp(Math.Floor(d), -1_000_000_000d, 1_000_000_000d);
+        }
+
         public static DynValue Guard(Func<DynValue> action)
         {
             try
