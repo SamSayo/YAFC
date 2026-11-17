@@ -16,6 +16,9 @@ namespace YAFC.Input
             { 7, KeyboardKey.RightShift }
         };
 
+        private readonly HashSet<int> _pending = new();
+        private readonly HashSet<int> _stepPressed = new();
+
         public bool IsBtnDown(int buttonId)
         {
             if (_buttonMap.TryGetValue(buttonId, out var key))
@@ -27,11 +30,32 @@ namespace YAFC.Input
 
         public bool IsBtnPressed(int buttonId)
         {
-            if (_buttonMap.TryGetValue(buttonId, out var key))
+            return _stepPressed.Contains(buttonId);
+        }
+
+        public void Poll()
+        {
+            foreach (var (id, key) in _buttonMap)
             {
-                return Raylib.IsKeyPressed(key);
+                if (Raylib.IsKeyPressed(key))
+                    _pending.Add(id);
             }
-            return false;
+        }
+
+        public void BeginStep()
+        {
+            _stepPressed.Clear();
+
+            foreach (int id in _pending)
+                _stepPressed.Add(id);
+
+            _pending.Clear();
+        }
+
+        public void Reset()
+        {
+            _pending.Clear();
+            _stepPressed.Clear();
         }
     }
 }

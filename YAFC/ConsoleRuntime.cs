@@ -37,8 +37,11 @@ namespace YAFC
 
         private const int MaxTransitionsPerFrame = 8;
 
+        private const float StepTime = 1f / 60f;
+        private const int MaxStepsPerFrame = 5;
+
         // Subsystems
-        private readonly VramResourceManager _vram = new(16);
+        private readonly VramResourceManager _vram = new(16, ScreenW, ScreenH);
         private readonly InputManager _input = new();
         private readonly AudioManager _audio = new();
         private readonly PhysEngine _physEngine;
@@ -67,6 +70,7 @@ namespace YAFC
         private Closure _luaUpdate;
         private Closure _luaDraw;
         private float _flushTimer;
+        private float _stepAccumulator;
 
         // Init flags
         private bool _windowInitialized;
@@ -499,7 +503,7 @@ namespace YAFC
                 _luaState = new Script(CoreModules.Preset_SoftSandbox);
                 InstallApis(_gameCart);
 
-
+                _luaState.Globals["deltaTime"] = StepTime;
                 _luaState.DoString(_gameCart.luaCode);
 
                 Closure? init = _luaState.Globals.Get("init").Function;
@@ -509,6 +513,8 @@ namespace YAFC
                 init?.Call();
 
                 _flushTimer = 0f;
+                _stepAccumulator = 0f;
+                _input.Reset();
                 Raylib.SetWindowTitle($"{_gameCart.meta.Id} | {_gameCart.meta.Name} | {_gameCart.meta.Version} | {_gameCart.meta.CanSave}");
             }
             catch (InterpreterException ex)
@@ -556,8 +562,24 @@ namespace YAFC
 
             try
             {
-                _luaState.Globals["deltaTime"] = dt;
-                _luaUpdate?.Call();
+                _input.Poll();
+
+                _stepAccumulator += dt;
+
+                int steps = 0;
+                while (_stepAccumulator >= StepTime && steps < MaxStepsPerFrame)
+                {
+                    _stepAccumulator -= StepTime;
+                    steps++;
+
+                    _input.BeginStep();
+                    _luaState.Globals["deltaTime"] = StepTime;
+                    _luaUpdate?.Call();
+                }
+
+                if (_stepAccumulator >= StepTime)
+                    _stepAccumulator = 0f;
+
                 _audio.Update();
             }
             catch (InterpreterException ex)
@@ -684,7 +706,8 @@ namespace YAFC
                     new LuaPhysicsApi(ctx),
                     new LuaInputApi(ctx),
                     new LuaSynthApi(ctx),
-                    new LuaGraphicsApi(ctx)
+                    new LuaGraphicsApi(ctx),
+                    new LuaBackgroundApi(ctx)
                 ];
 
             foreach (var api in apis)
