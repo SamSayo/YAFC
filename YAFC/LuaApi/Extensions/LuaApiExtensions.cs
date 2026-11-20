@@ -44,7 +44,7 @@ namespace YAFC.LuaApi.Extensions
             double d = args.AsType(index, func, DataType.Number, false).Number;
 
             if (double.IsNaN(d))
-                throw new ScriptRuntimeException($"bad argument #{index + 1} to '{func}' (number excepted)");
+                throw new ScriptRuntimeException($"bad argument #{index + 1} to '{func}' (number expected)");
 
             return (int)Math.Clamp(Math.Floor(d), -1_000_000_000d, 1_000_000_000d);
         }

@@ -100,29 +100,21 @@ namespace YAFC.Video
             int firstRow = (sy + y0) / ts;
             int lastRow = (sy + y1 - 1) / ts;
 
-            Raylib.BeginScissorMode(0, y0, _screenW, y1 - y0);
-            try
+            for (int row = firstRow; row <= lastRow; row++)
             {
-                for (int row = firstRow; row <= lastRow; row++)
+                int screenY = row * ts - sy;
+                int mapRow = row % TileMap.Rows;
+
+                for (int col = firstCol; col <= lastCol; col++)
                 {
-                    int screenY = row * ts - sy;
-                    int mapRow = row % TileMap.Rows;
+                    if (!Background.TryGet(col % TileMap.Cols, mapRow, out int id, out int flags))
+                        continue;
 
-                    for (int col = firstCol; col <= lastCol; col++)
-                    {
-                        if (!Background.TryGet(col % TileMap.Cols, mapRow, out int id, out int flags))
-                            continue;
+                    if (id >= spriteCount)
+                        continue;
 
-                        if (id >= spriteCount)
-                            continue;
-
-                        DrawSprite(id, col * ts - sx, screenY, 1.0f, (flags & TileMap.FlipX) != 0, (flags & TileMap.FlipY) != 0);
-                    }
+                    DrawSprite(id, col * ts - sx, screenY, 1.0f, (flags & TileMap.FlipX) != 0, (flags & TileMap.FlipY) != 0);
                 }
-            }
-            finally
-            {
-                Raylib.EndScissorMode();
             }
         }
 

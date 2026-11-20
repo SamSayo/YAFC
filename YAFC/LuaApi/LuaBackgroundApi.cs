@@ -65,7 +65,7 @@ namespace YAFC.LuaApi
                 y0 = LuaApiExtensions.FlooredNumber(args, 0, "bg_draw");
 
             if (args.Count > 1 && args[1].IsNotNil())
-                y0 = LuaApiExtensions.FlooredNumber(args, 1, "bg_draw");
+                y1 = LuaApiExtensions.FlooredNumber(args, 1, "bg_draw");
 
             _vram.DrawBackground(y0, y1);
 
