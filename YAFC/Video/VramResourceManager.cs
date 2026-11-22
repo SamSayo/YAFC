@@ -17,7 +17,7 @@ namespace YAFC.Video
         public int ScreenWidth => _screenW;
         public int ScreenHeight => _screenH;
 
-        private readonly Color[] gamePalette = new Color[]
+        private static readonly Color[] gamePalette = new[]
         {
             new Color(0, 0, 0, 255),
             new Color(126, 126, 126, 255),
@@ -34,7 +34,52 @@ namespace YAFC.Video
             new Color(126, 0, 126, 255),
             new Color(254, 0, 255, 255),
             new Color(4, 126, 126, 255),
-            new Color(6, 255, 255, 255)
+            new Color(6, 255, 255, 255),
+
+            new Color(36, 36, 48, 255),
+            new Color(68, 68, 82, 255),
+            new Color(85, 85, 85, 255),
+            new Color(154, 160, 174, 255),
+            new Color(224, 224, 232, 255),
+            new Color(68, 52, 60, 255),
+            new Color(126, 112, 104, 255),
+            new Color(238, 228, 210, 255),
+
+            new Color(60, 28, 16, 255),
+            new Color(96, 48, 24, 255),
+            new Color(138, 72, 34, 255),
+            new Color(176, 102, 48, 255),
+            new Color(212, 146, 82, 255),
+            new Color(102, 76, 44, 255),
+            new Color(152, 124, 78, 255),
+            new Color(218, 194, 138, 255),
+
+            new Color(255, 204, 0, 255),
+            new Color(255, 255, 154, 255),
+            new Color(16, 68, 24, 255),
+            new Color(34, 154, 48, 255),
+            new Color(136, 212, 34, 255),
+            new Color(170, 255, 154, 255),
+            new Color(0, 102, 78, 255),
+            new Color(48, 190, 136, 255),
+
+            new Color(16, 24, 78, 255),
+            new Color(24, 68, 164, 255),
+            new Color(56, 126, 238, 255),
+            new Color(85, 170, 255, 255),
+            new Color(170, 224, 255, 255),
+            new Color(0, 170, 190, 255),
+            new Color(118, 238, 238, 255),
+            new Color(68, 96, 144, 255),
+
+            new Color(56, 16, 82, 255),
+            new Color(102, 42, 156, 255),
+            new Color(156, 85, 238, 255),
+            new Color(204, 164, 255, 255),
+            new Color(170, 34, 126, 255),
+            new Color(255, 85, 170, 255),
+            new Color(255, 170, 224, 255),
+            new Color(136, 82, 118, 255)
         };
 
 
