@@ -8,7 +8,11 @@ namespace YAFC
         static void Main(string[] args)
         {
             ConsoleRuntime yafc = new();
-            yafc.Start();
+
+            if (args.Length == 0)
+                yafc.Start();
+            else
+                yafc.Start(args[0]);
         }
     }
 }
