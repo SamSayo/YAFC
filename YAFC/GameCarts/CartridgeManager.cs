@@ -31,7 +31,7 @@ namespace YAFC.GameCarts
 
             // Is there a sprite inside this spritesheet
             Image image = Raylib.LoadImageFromMemory(".png", files.ReadBytes(spritePath));
-            if (image.Width < 16 || image.Height < 16)
+            if (image.Width < 8 || image.Height < 8)
             {
                 throw new GameCartException("spritesheet.png is not a valid PNG");
             }

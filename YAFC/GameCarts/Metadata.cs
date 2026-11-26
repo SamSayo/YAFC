@@ -18,6 +18,9 @@ namespace YAFC.GameCarts
         [JsonPropertyName("save_size")]
         public int SaveSize { get; set; }
 
+        [JsonPropertyName("tile_size")]
+        public int TileSize { get; set; } = 16;
+
         public bool CanSave => SaveSize > 0 && IsValidId(Id);
 
         public static Metadata Fallback => new()
@@ -26,7 +29,8 @@ namespace YAFC.GameCarts
             Name = "YAFC GameCart",
             Description = "Please, make meta.json",
             Version = "0.0.0",
-            SaveSize = 0
+            SaveSize = 0,
+            TileSize = 16
         };
 
         private static readonly JsonSerializerOptions Options = new()
@@ -75,19 +79,16 @@ namespace YAFC.GameCarts
                 throw new GameCartException("meta.json is empty");
 
             if (meta.Id.Length > 0 && !IsValidId(meta.Id))
-            {
                 throw new GameCartException("meta.json: invalid id (allowed: a-z, 0-9, '.', '_', '-', up to 64 chars)");
-            }
 
             if (meta.SaveSize < 0 || meta.SaveSize > SaveRam.MaxSize)
-            {
                 throw new GameCartException($"meta.json: save_size must be 0..{SaveRam.MaxSize}");
-            }
 
             if (meta.SaveSize > 0 && meta.Id.Length == 0)
-            {
                 throw new GameCartException("meta.json: save_size requires id");
-            }
+
+            if (meta.TileSize != 16 && meta.TileSize != 8)
+                throw new GameCartException($"meta.json: tile_size must be 16 or 8, instead of {meta.TileSize}");
 
             return meta;
         }

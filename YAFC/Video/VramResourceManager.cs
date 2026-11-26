@@ -82,13 +82,14 @@ namespace YAFC.Video
             new Color(136, 82, 118, 255)
         };
 
-
         public VramResourceManager(int tileSize = 16, int screenW = 256, int screenH = 192)
         {
             _tileSize = tileSize;
             _screenW = screenW;
             _screenH = screenH;
         }
+
+        public VramResourceManager WithTileSize(int newTileSize) => new(newTileSize, _screenW, _screenH);
 
         public void LoadSpriteSheet(Image spriteSheet)
         {

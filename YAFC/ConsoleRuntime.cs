@@ -498,6 +498,7 @@ namespace YAFC
                     throw new InvalidDataException("GameCart contains no Lua code!");
 
                 _vramLoadAttempted = true;
+                _vram.WithTileSize(_gameCart.meta.TileSize);
                 _vram.LoadSpriteSheet(_gameCart.spriteSheet);
 
                 _luaState = new Script(CoreModules.Preset_SoftSandbox);
