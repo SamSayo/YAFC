@@ -7,7 +7,7 @@ namespace YAFC.Video
     public class VramResourceManager
     {
         private Texture2D _spriteSheet;
-        private readonly int _tileSize;
+        private int _tileSize;
         private readonly int _screenW;
         private readonly int _screenH;
         private readonly SolidMap _solids = new();
@@ -89,7 +89,13 @@ namespace YAFC.Video
             _screenH = screenH;
         }
 
-        public VramResourceManager WithTileSize(int newTileSize) => new(newTileSize, _screenW, _screenH);
+        public void SetTileSize(int newTileSize)
+        {
+            if (newTileSize != 8 && newTileSize != 16)
+                throw new ArgumentOutOfRangeException(nameof(newTileSize));
+
+            _tileSize = newTileSize;
+        }
 
         public void LoadSpriteSheet(Image spriteSheet)
         {
